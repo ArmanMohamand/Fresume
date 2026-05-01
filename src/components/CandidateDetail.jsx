@@ -1,70 +1,164 @@
-import React from "react";
+import React, { useState } from "react";
+import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import API from "../api";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
 
-function CandidateDetail({ candidate, loading, onClose }) {
-  if (loading) {
-    return (
-      <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md animate-pulse">
-        <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-2/3 mb-2"></div>
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-      </div>
-    );
-  }
+// ✅ Configure PDF.js worker (bundled by Vite)
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-  if (!candidate) {
-    return (
-      <div className="p-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded">
-        Select a candidate to view details.
-      </div>
-    );
-  }
+function UploadResume() {
+  const [file, setFile] = useState(null);
+  const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  const metadata = candidate.metadata || {};
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setFile(e.dataTransfer.files[0]);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const extractPdfText = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let textContent = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const text = await page.getTextContent();
+      text.items.forEach((item) => {
+        textContent += item.str + " ";
+      });
+    }
+    return textContent;
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      setMessage("Please select a file first.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage("No token found. Please login first.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setProgress(0);
+
+      let fileContent = "";
+      if (file.type === "application/pdf") {
+        fileContent = await extractPdfText(file);
+      } else {
+        fileContent = await file.text();
+      }
+
+      const res = await API.post(
+        "/upload",
+        {
+          filename: file.name,
+          text: fileContent,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          onUploadProgress: (event) => {
+            if (event.total) {
+              const percent = Math.round((event.loaded * 100) / event.total);
+              setProgress(percent);
+            }
+          },
+        }
+      );
+
+      setMessage(res.data.message);
+      setFile(null);
+    } catch (err) {
+      setMessage("Upload failed: " + (err.response?.data?.msg || err.message));
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-          Candidate Details
-        </h2>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Close
-          </button>
-        )}
+    <div className="max-w-xl mx-auto mt-12 bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-2xl">
+      <h2 className="text-3xl font-extrabold mb-8 text-center text-gray-800 dark:text-gray-100">
+        Upload Resume
+      </h2>
+
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        className="border-2 border-dashed border-gray-400 rounded-xl p-12 text-center mb-6 hover:border-green-500 transition cursor-pointer bg-gray-50 dark:bg-gray-800"
+      >
+        <CloudArrowUpIcon className="mx-auto h-16 w-16 text-green-500 mb-4" />
+        <p className="text-gray-700 dark:text-gray-300 font-medium">
+          Drag & drop your resume here
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          or click below to select a file
+        </p>
       </div>
 
-      <p className="mb-2 text-gray-700 dark:text-gray-300">
-        <strong>Name:</strong> {metadata.name || "Unknown"}
-      </p>
+      <input
+        type="file"
+        accept=".pdf,.txt"
+        onChange={handleFileChange}
+        className="w-full mb-4 text-gray-700 dark:text-gray-200"
+      />
 
-      <p className="mb-2 text-gray-700 dark:text-gray-300">
-        <strong>Email:</strong> {metadata.email || "Not provided"}
-      </p>
+      <button
+        onClick={handleUpload}
+        disabled={!file || uploading}
+        className={`w-full py-3 rounded-xl font-semibold transition transform ${
+          file && !uploading
+            ? "bg-green-500 text-white hover:bg-green-600 hover:scale-105 shadow-md"
+            : "bg-gray-300 text-gray-600 cursor-not-allowed"
+        }`}
+      >
+        {uploading
+          ? "Uploading..."
+          : file
+          ? "Upload Resume"
+          : "Select a file first"}
+      </button>
 
-      <p className="mb-2 text-gray-700 dark:text-gray-300">
-        <strong>Phone:</strong> {metadata.phone || "Not provided"}
-      </p>
+      {uploading && (
+        <div className="mt-4 w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+          <div
+            className="bg-green-500 h-4 rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      )}
 
-      <p className="mb-2 text-gray-700 dark:text-gray-300">
-        <strong>Score:</strong>{" "}
-        {typeof candidate.score === "number"
-          ? candidate.score.toFixed(2)
-          : "N/A"}
-      </p>
+      {file && !uploading && (
+        <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 text-center">
+          <strong>Selected:</strong> {file.name}
+        </div>
+      )}
 
-      <p className="mb-2 text-gray-700 dark:text-gray-300">
-        <strong>Skills:</strong>{" "}
-        {candidate.matched_skills?.length > 0
-          ? candidate.matched_skills.join(", ")
-          : "No skills detected"}
-      </p>
+      {message && (
+        <p className="mt-6 text-center text-sm font-medium text-gray-700 dark:text-gray-400">
+          {message}
+        </p>
+      )}
     </div>
   );
 }
 
-export default CandidateDetail;
+export default UploadResume;
