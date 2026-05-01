@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
+import * as pdfjsLib from "pdfjs-dist";
+import "pdfjs-dist/build/pdf.worker.entry";
 
 function UploadResume() {
   const [file, setFile] = useState(null);
@@ -21,6 +23,21 @@ function UploadResume() {
     e.preventDefault();
   };
 
+  const extractPdfText = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let textContent = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const text = await page.getTextContent();
+      text.items.forEach((item) => {
+        textContent += item.str + " ";
+      });
+    }
+    return textContent;
+  };
+
   const handleUpload = async () => {
     if (!file) {
       setMessage("Please select a file first.");
@@ -33,24 +50,36 @@ function UploadResume() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
       setUploading(true);
       setProgress(0);
 
-      const res = await API.post("/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      let fileContent = "";
+      if (file.type === "application/pdf") {
+        fileContent = await extractPdfText(file);
+      } else {
+        fileContent = await file.text();
+      }
+
+      const res = await API.post(
+        "/upload",
+        {
+          filename: file.name,
+          text: fileContent,
         },
-        onUploadProgress: (event) => {
-          if (event.total) {
-            const percent = Math.round((event.loaded * 100) / event.total);
-            setProgress(percent);
-          }
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          onUploadProgress: (event) => {
+            if (event.total) {
+              const percent = Math.round((event.loaded * 100) / event.total);
+              setProgress(percent);
+            }
+          },
         },
-      });
+      );
 
       setMessage(res.data.message);
       setFile(null);
@@ -68,7 +97,6 @@ function UploadResume() {
         Upload Resume
       </h2>
 
-      {/* Drag & Drop Zone */}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -83,15 +111,13 @@ function UploadResume() {
         </p>
       </div>
 
-      {/* File Input */}
       <input
         type="file"
-        accept=".pdf"
+        accept=".pdf,.txt"
         onChange={handleFileChange}
         className="w-full mb-4 text-gray-700 dark:text-gray-200"
       />
 
-      {/* Upload Button */}
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
@@ -101,10 +127,13 @@ function UploadResume() {
             : "bg-gray-300 text-gray-600 cursor-not-allowed"
         }`}
       >
-        {uploading ? "Uploading..." : file ? "Upload Resume" : "Select a file first"}
+        {uploading
+          ? "Uploading..."
+          : file
+            ? "Upload Resume"
+            : "Select a file first"}
       </button>
 
-      {/* Progress Bar */}
       {uploading && (
         <div className="mt-4 w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
           <div
@@ -114,14 +143,12 @@ function UploadResume() {
         </div>
       )}
 
-      {/* File Preview */}
       {file && !uploading && (
         <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 text-center">
           <strong>Selected:</strong> {file.name}
         </div>
       )}
 
-      {/* Upload Message */}
       {message && (
         <p className="mt-6 text-center text-sm font-medium text-gray-700 dark:text-gray-400">
           {message}
