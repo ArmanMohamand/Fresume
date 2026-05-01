@@ -1,7 +1,6 @@
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+import worker from "pdfjs-dist/legacy/build/pdf.worker.min?url";
 
-// ✅ FORCE CDN WORKER (100% RELIABLE)
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc = worker;
 
 export default pdfjsLib;
