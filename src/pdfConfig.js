@@ -1,8 +1,7 @@
 import * as pdfjsLib from "pdfjs-dist";
 
-// ✅ Vite-safe worker (FINAL FIX)
-import workerSrc from "pdfjs-dist/build/pdf.worker.min?url";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+// ✅ FORCE CDN WORKER (100% RELIABLE)
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
 
 export default pdfjsLib;
