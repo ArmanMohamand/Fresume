@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
 import * as pdfjsLib from "pdfjs-dist";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
+import workerSrc from "../pdf-worker"; // ✅ use wrapper file
 
-// ✅ Configure PDF.js worker (bundled by Vite)
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// ✅ Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 function UploadResume() {
   const [file, setFile] = useState(null);
@@ -13,18 +13,12 @@ function UploadResume() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
+  const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleDrop = (e) => {
     e.preventDefault();
     setFile(e.dataTransfer.files[0]);
   };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const extractPdfText = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
@@ -57,19 +51,14 @@ function UploadResume() {
       setUploading(true);
       setProgress(0);
 
-      let fileContent = "";
-      if (file.type === "application/pdf") {
-        fileContent = await extractPdfText(file);
-      } else {
-        fileContent = await file.text();
-      }
+      let fileContent =
+        file.type === "application/pdf"
+          ? await extractPdfText(file)
+          : await file.text();
 
       const res = await API.post(
         "/upload",
-        {
-          filename: file.name,
-          text: fileContent,
-        },
+        { filename: file.name, text: fileContent },
         {
           headers: {
             "Content-Type": "application/json",
@@ -81,7 +70,7 @@ function UploadResume() {
               setProgress(percent);
             }
           },
-        }
+        },
       );
 
       setMessage(res.data.message);
@@ -133,8 +122,8 @@ function UploadResume() {
         {uploading
           ? "Uploading..."
           : file
-          ? "Upload Resume"
-          : "Select a file first"}
+            ? "Upload Resume"
+            : "Select a file first"}
       </button>
 
       {uploading && (

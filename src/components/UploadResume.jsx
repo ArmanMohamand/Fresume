@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
 import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "../pdf-worker";
 
-// ✅ Configure PDF.js worker from CDN (no bundling issues)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 function UploadResume() {
   const [file, setFile] = useState(null);
@@ -12,18 +12,12 @@ function UploadResume() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
+  const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleDrop = (e) => {
     e.preventDefault();
     setFile(e.dataTransfer.files[0]);
   };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const extractPdfText = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
@@ -56,19 +50,14 @@ function UploadResume() {
       setUploading(true);
       setProgress(0);
 
-      let fileContent = "";
-      if (file.type === "application/pdf") {
-        fileContent = await extractPdfText(file);
-      } else {
-        fileContent = await file.text();
-      }
+      let fileContent =
+        file.type === "application/pdf"
+          ? await extractPdfText(file)
+          : await file.text();
 
       const res = await API.post(
         "/upload",
-        {
-          filename: file.name,
-          text: fileContent,
-        },
+        { filename: file.name, text: fileContent },
         {
           headers: {
             "Content-Type": "application/json",
