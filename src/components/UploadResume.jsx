@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
 import * as pdfjsLib from "pdfjs-dist";
-import workerSrc from "../pdf-worker";
+import workerSrc from "../pdf-worker"; // ✅ wrapper import
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -13,10 +13,7 @@ function UploadResume() {
   const [progress, setProgress] = useState(0);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setFile(e.dataTransfer.files[0]);
-  };
+  const handleDrop = (e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); };
   const handleDragOver = (e) => e.preventDefault();
 
   const extractPdfText = async (file) => {
@@ -27,24 +24,16 @@ function UploadResume() {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const text = await page.getTextContent();
-      text.items.forEach((item) => {
-        textContent += item.str + " ";
-      });
+      text.items.forEach((item) => { textContent += item.str + " "; });
     }
     return textContent;
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a file first.");
-      return;
-    }
+    if (!file) { setMessage("Please select a file first."); return; }
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      setMessage("No token found. Please login first.");
-      return;
-    }
+    if (!token) { setMessage("No token found. Please login first."); return; }
 
     try {
       setUploading(true);
@@ -69,7 +58,7 @@ function UploadResume() {
               setProgress(percent);
             }
           },
-        },
+        }
       );
 
       setMessage(res.data.message);
@@ -121,8 +110,8 @@ function UploadResume() {
         {uploading
           ? "Uploading..."
           : file
-            ? "Upload Resume"
-            : "Select a file first"}
+          ? "Upload Resume"
+          : "Select a file first"}
       </button>
 
       {uploading && (
