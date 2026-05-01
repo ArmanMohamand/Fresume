@@ -4,6 +4,7 @@ import API from "../api";
 function Login({ setToken }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,10 @@ function Login({ setToken }) {
       formData.append("password", password);
 
       if (isSignup) {
+        if (password !== confirmPassword) {
+          setMessage("Error: Passwords do not match");
+          return;
+        }
         // Register new user
         const res = await API.post("/register", formData);
         setMessage(res.data.message);
@@ -34,25 +39,28 @@ function Login({ setToken }) {
       }
     } catch (err) {
       setMessage(
-        "Error: " + (err.response?.data?.error || err.response?.data?.message || err.message)
+        "Error: " +
+          (err.response?.data?.error ||
+            err.response?.data?.message ||
+            err.message),
       );
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-800">
-      <div className="bg-white p-6 rounded shadow-md w-80">
-        <h2 className="text-lg font-bold mb-4">
-          {isSignup ? "Sign Up" : "Login"}
-        </h2>
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-black via-red-800 to-gray-900">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-96 animate-fadeIn">
+        <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">
+          {isSignup ? "Create Your Account" : "Welcome Back"}
+        </h1>
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
+          className="w-full mb-3 p-2 border rounded"
         />
-        <div className="relative mb-2">
+        <div className="relative mb-3">
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
@@ -68,13 +76,22 @@ function Login({ setToken }) {
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
+        {isSignup && (
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full mb-3 p-2 border rounded"
+          />
+        )}
         <button
           onClick={handleSubmit}
-          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
         >
           {isSignup ? "Register & Login" : "Login"}
         </button>
-        <p className="mt-2 text-sm text-gray-600">{message}</p>
+        <p className="mt-3 text-sm text-gray-600">{message}</p>
         <p
           onClick={() => setIsSignup(!isSignup)}
           className="mt-4 text-sm text-blue-600 cursor-pointer hover:underline"
