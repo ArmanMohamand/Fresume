@@ -1,10 +1,5 @@
 import React, { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import workerSrc from "../pdf-worker"; // ✅ use wrapper file
-
-// ✅ Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-
 function CandidateDetail() {
   const [file, setFile] = useState(null);
   const [textContent, setTextContent] = useState("");
