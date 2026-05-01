@@ -16,7 +16,10 @@ function Navbar({ handleLogout, toggleTheme, theme }) {
           Rank
         </Link>
         <Link to="/analytics" className="hover:underline">
-          Analytics 
+          Analytics
+        </Link>
+        <Link to="/candidate" className="hover:underline">
+          Candidate Details
         </Link>
       </div>
       <div className="flex space-x-4">
