@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
 import pdfjsLib from "../pdfConfig";
 
@@ -30,34 +29,37 @@ function UploadResume() {
   const handleUpload = async () => {
     if (!file) return;
 
-    const token = localStorage.getItem("token");
-
     try {
       setUploading(true);
+      setMessage("");
 
-      let text =
+      const token = localStorage.getItem("token");
+      console.log("TOKEN:", token); // debug check
+
+      if (!token) {
+        setMessage("Please login again. Token missing.");
+        setUploading(false);
+        return;
+      }
+
+      const text =
         file.type === "application/pdf"
           ? await extractPdfText(file)
           : await file.text();
 
-      const res = await API.post(
-        "/upload",
-        {
-          filename: file.name,
-          text: text,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      // ✅ IMPORTANT: NO manual headers here
+      const res = await API.post("/upload", {
+        filename: file.name,
+        text: text,
+      });
 
-      setMessage(res.data.message);
+      setMessage(res.data.message || "Upload successful!");
       setFile(null);
     } catch (err) {
-      setMessage("Upload failed: " + err.message);
+      console.error(err);
+      setMessage(
+        "Upload failed: " + (err.response?.data?.error || err.message),
+      );
     } finally {
       setUploading(false);
     }
