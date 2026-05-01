@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import API from "../api";
+import API from "../api"; // axios instance with baseURL set to https://bresume.onrender.com
 
 function Login({ setToken }) {
   const [username, setUsername] = useState("");
@@ -11,27 +11,32 @@ function Login({ setToken }) {
 
   const handleSubmit = async () => {
     try {
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("password", password);
-
       if (isSignup) {
         if (password !== confirmPassword) {
           setMessage("Error: Passwords do not match");
           return;
         }
-        // Register new user
-        const res = await API.post("/register", formData);
+        // Register new user with JSON
+        const res = await API.post("/register", {
+          username,
+          password,
+        });
         setMessage(res.data.message);
 
         // Auto login after signup
-        const loginRes = await API.post("/login", formData);
+        const loginRes = await API.post("/login", {
+          username,
+          password,
+        });
         const token = loginRes.data.access_token;
         localStorage.setItem("token", token);
         setToken(token);
       } else {
-        // Login existing user
-        const res = await API.post("/login", formData);
+        // Login existing user with JSON
+        const res = await API.post("/login", {
+          username,
+          password,
+        });
         const token = res.data.access_token;
         localStorage.setItem("token", token);
         setToken(token);
@@ -42,7 +47,7 @@ function Login({ setToken }) {
         "Error: " +
           (err.response?.data?.error ||
             err.response?.data?.message ||
-            err.message),
+            err.message)
       );
     }
   };
