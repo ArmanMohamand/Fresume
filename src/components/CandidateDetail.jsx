@@ -67,6 +67,7 @@
 
 // export default CandidateDetail;
 
+
 // import React from "react";
 
 // function CandidateDetail({ candidate }) {
@@ -100,56 +101,25 @@
 // }
 
 // export default CandidateDetail;
-import React, { useEffect, useState } from "react";
-import API from "../api";
+import React from "react";
+import { useLocation } from "react-router-dom";
 
 function CandidateDetail() {
-  const [data, setData] = useState([]);
+  const { state } = useLocation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
+  if (!state) return <p>No candidate selected</p>;
 
-      const res = await API.get("/candidates", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setData(res.data);
-    };
-
-    fetchData();
-  }, []);
+  const meta = state.metadata || {};
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Candidates</h2>
+      <h2>Candidate Details</h2>
 
-      <div className="grid gap-4">
-        {data.map((c, i) => (
-          <div key={i} className="p-4 border rounded shadow bg-white">
-            <p>
-              <b>Name:</b> {c.name || "N/A"}
-            </p>
-            <p>
-              <b>Email:</b> {c.email || "N/A"}
-            </p>
-            <p>
-              <b>Phone:</b> {c.phone || "N/A"}
-            </p>
-            <p>
-              <b>GitHub:</b> {c.github || "N/A"}
-            </p>
-            <p>
-              <b>Score:</b> {c.score}
-            </p>
-            <p>
-              <b>File:</b> {c.filename}
-            </p>
-          </div>
-        ))}
-      </div>
+      <p>Name: {meta.name || "N/A"}</p>
+      <p>Email: {meta.email || "N/A"}</p>
+      <p>Phone: {meta.phone || "N/A"}</p>
+      <p>GitHub: {meta.github || "N/A"}</p>
+      <p>Score: {state.score}</p>
     </div>
   );
 }

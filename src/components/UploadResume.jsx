@@ -120,24 +120,48 @@ function UploadResume() {
   const handleUpload = async () => {
     if (!file) return;
 
+    const token = localStorage.getItem("token");
+
     try {
       setUploading(true);
-      setMessage("");
-
-      const token = localStorage.getItem("token");
 
       let text =
         file.type === "application/pdf"
           ? await extractPdfText(file)
           : await file.text();
 
-      const res = await API.post(
+      // 1️⃣ Upload resume
+      await API.post(
         "/upload",
-        { filename: file.name, text },
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          filename: file.name,
+          text: text,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
-      setMessage(res.data.message);
+      // 2️⃣ AUTO TRIGGER RANK after upload
+      const rankRes = await API.post(
+        "/rank",
+        {
+          job_description: localStorage.getItem("jobDesc") || "",
+          required_skills: JSON.parse(
+            localStorage.getItem("requiredSkills") || "[]",
+          ),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      // optional: store analytics globally
+      localStorage.setItem("analytics", JSON.stringify(rankRes.data.analytics));
+
+      setMessage("Upload + Ranking completed successfully!");
       setFile(null);
     } catch (err) {
       setMessage("Upload failed: " + err.message);

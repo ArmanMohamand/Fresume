@@ -78,77 +78,48 @@
 // }
 
 // export default RankResumes;
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import API from "../api";
+import { useNavigate } from "react-router-dom";
 
-function CandidateDetail() {
-  const { state: candidate } = useLocation();
+function RankResumes() {
+  const [results, setResults] = useState(null);
   const navigate = useNavigate();
 
-  if (!candidate) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        No candidate selected
-        <div className="mt-4">
-          <button
-            onClick={() => navigate("/rank")}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const handleRank = async () => {
+    const token = localStorage.getItem("token");
 
-  const meta = candidate.metadata || {};
+    const res = await API.post(
+      "/rank",
+      {
+        job_description: localStorage.getItem("jobDesc") || "",
+        required_skills: JSON.parse(localStorage.getItem("requiredSkills") || "[]"),
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setResults(res.data.results);
+  };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">Candidate Profile</h2>
-
-      <div className="space-y-2">
-        <p>
-          <strong>Name:</strong> {meta.name || "N/A"}
-        </p>
-        <p>
-          <strong>Email:</strong> {meta.email || "N/A"}
-        </p>
-        <p>
-          <strong>Phone:</strong> {meta.phone || "N/A"}
-        </p>
-        <p>
-          <strong>GitHub:</strong> {meta.github || "N/A"}
-        </p>
-      </div>
-
-      <div className="mt-5">
-        <p className="font-semibold mb-2">Projects:</p>
-
-        <ul className="list-disc ml-6">
-          {Array.isArray(meta.projects) && meta.projects.length > 0 ? (
-            meta.projects.map((p, i) => <li key={i}>{p}</li>)
-          ) : (
-            <li>N/A</li>
-          )}
-        </ul>
-      </div>
-
-      <div className="mt-6 text-lg font-bold text-green-600">
-        Score:{" "}
-        {typeof candidate.score === "number"
-          ? candidate.score.toFixed(2)
-          : candidate.score || 0}
-      </div>
-
-      <button
-        onClick={() => navigate(-1)}
-        className="mt-6 px-4 py-2 bg-gray-700 text-white rounded"
-      >
-        Back
+    <div className="p-6">
+      <button onClick={handleRank} className="bg-blue-500 px-4 py-2 text-white">
+        Rank
       </button>
+
+      {results && results.map((r) => (
+        <div
+          key={r.resume_id}
+          onClick={() => navigate("/candidate", { state: r })}
+          className="p-3 border mt-2 cursor-pointer"
+        >
+          Resume {r.resume_id} → Score {r.score}
+        </div>
+      ))}
     </div>
   );
 }
 
-export default CandidateDetail;
+export default RankResumes;
