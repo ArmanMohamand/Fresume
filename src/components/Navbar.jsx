@@ -18,9 +18,9 @@ function Navbar({ handleLogout, toggleTheme, theme }) {
         <Link to="/analytics" className="hover:underline">
           Analytics
         </Link>
-        <Link to="/candidate" className="hover:underline">
+        {/* <Link to="/candidate" className="hover:underline">
           Candidate Details
-        </Link>
+        </Link> */}
       </div>
       <div className="flex space-x-4">
         <button
