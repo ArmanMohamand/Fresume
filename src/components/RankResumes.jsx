@@ -78,105 +78,77 @@
 // }
 
 // export default RankResumes;
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../api";
-
-function RankResumes({ jobDesc, requiredSkills, setAnalytics }) {
-  const [results, setResults] = useState(null);
-  const [loading, setLoading] = useState(false);
-
+function CandidateDetail() {
+  const { state: candidate } = useLocation();
   const navigate = useNavigate();
 
-  const handleRank = async () => {
-    const token = localStorage.getItem("token");
+  if (!candidate) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        No candidate selected
+        <div className="mt-4">
+          <button
+            onClick={() => navigate("/rank")}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      setLoading(true);
-
-      const res = await API.post(
-        "/rank",
-        {
-          job_description: jobDesc,
-          required_skills: requiredSkills,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      setResults(res.data.results);
-
-      if (res.data.analytics) {
-        setAnalytics(res.data.analytics);
-      }
-    } catch (err) {
-      console.error("Ranking failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSelectCandidate = (candidate) => {
-    navigate("/candidate", { state: candidate });
-  };
+  const meta = candidate.metadata || {};
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Rank Resumes</h2>
+    <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold mb-6">Candidate Profile</h2>
+
+      <div className="space-y-2">
+        <p>
+          <strong>Name:</strong> {meta.name || "N/A"}
+        </p>
+        <p>
+          <strong>Email:</strong> {meta.email || "N/A"}
+        </p>
+        <p>
+          <strong>Phone:</strong> {meta.phone || "N/A"}
+        </p>
+        <p>
+          <strong>GitHub:</strong> {meta.github || "N/A"}
+        </p>
+      </div>
+
+      <div className="mt-5">
+        <p className="font-semibold mb-2">Projects:</p>
+
+        <ul className="list-disc ml-6">
+          {Array.isArray(meta.projects) && meta.projects.length > 0 ? (
+            meta.projects.map((p, i) => <li key={i}>{p}</li>)
+          ) : (
+            <li>N/A</li>
+          )}
+        </ul>
+      </div>
+
+      <div className="mt-6 text-lg font-bold text-green-600">
+        Score:{" "}
+        {typeof candidate.score === "number"
+          ? candidate.score.toFixed(2)
+          : candidate.score || 0}
+      </div>
 
       <button
-        onClick={handleRank}
-        disabled={loading}
-        className={`px-4 py-2 rounded text-white transition ${
-          loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
+        onClick={() => navigate(-1)}
+        className="mt-6 px-4 py-2 bg-gray-700 text-white rounded"
       >
-        {loading ? "Ranking..." : "Rank Resumes"}
+        Back
       </button>
-
-      {results && (
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-3">Ranked Candidates</h3>
-
-          <ul className="space-y-3">
-            {results.map((r) => (
-              <li
-                key={r.resume_id}
-                onClick={() => handleSelectCandidate(r)}
-                className="cursor-pointer p-4 border rounded-lg 
-                           bg-white dark:bg-gray-800 
-                           hover:bg-gray-100 dark:hover:bg-gray-700 
-                           transition shadow-sm"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="font-semibold">Resume #{r.resume_id}</div>
-
-                  <div className="text-sm font-bold text-blue-500">
-                    Score:{" "}
-                    {typeof r.score === "number" ? r.score.toFixed(2) : "N/A"}
-                  </div>
-                </div>
-
-                <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Skills: {r.matched_skills?.join(", ") || "None"}
-                </div>
-
-                <p className="text-xs text-gray-400 mt-2">
-                  Click to view full candidate profile →
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
 
-export default RankResumes;
+export default CandidateDetail;

@@ -67,7 +67,6 @@
 
 // export default CandidateDetail;
 
-
 // import React from "react";
 
 // function CandidateDetail({ candidate }) {
@@ -101,38 +100,56 @@
 // }
 
 // export default CandidateDetail;
-
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import API from "../api";
 
 function CandidateDetail() {
-  const { state: candidate } = useLocation();
+  const [data, setData] = useState([]);
 
-  if (!candidate) return <div>No candidate selected</div>;
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
 
-  const meta = candidate.metadata || {};
+      const res = await API.get("/candidates", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setData(res.data);
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow">
-      <h2 className="text-xl font-bold mb-4">Candidate Profile</h2>
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Candidates</h2>
 
-      <p><strong>Name:</strong> {meta.name || "N/A"}</p>
-      <p><strong>Email:</strong> {meta.email || "N/A"}</p>
-      <p><strong>Phone:</strong> {meta.phone || "N/A"}</p>
-      <p><strong>GitHub:</strong> {meta.github || "N/A"}</p>
-
-      <p className="mt-2">
-        <strong>Projects:</strong>
-      </p>
-      <ul className="list-disc ml-6">
-        {meta.projects?.length
-          ? meta.projects.map((p, i) => <li key={i}>{p}</li>)
-          : "N/A"}
-      </ul>
-
-      <p className="mt-3 font-bold">
-        Score: {candidate.score?.toFixed(2)}
-      </p>
+      <div className="grid gap-4">
+        {data.map((c, i) => (
+          <div key={i} className="p-4 border rounded shadow bg-white">
+            <p>
+              <b>Name:</b> {c.name || "N/A"}
+            </p>
+            <p>
+              <b>Email:</b> {c.email || "N/A"}
+            </p>
+            <p>
+              <b>Phone:</b> {c.phone || "N/A"}
+            </p>
+            <p>
+              <b>GitHub:</b> {c.github || "N/A"}
+            </p>
+            <p>
+              <b>Score:</b> {c.score}
+            </p>
+            <p>
+              <b>File:</b> {c.filename}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
