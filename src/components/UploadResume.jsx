@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
-import * as pdfjsLib from "pdfjs-dist";
-
+import pdfjsLib from "../pdfConfig";
 function UploadResume() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");

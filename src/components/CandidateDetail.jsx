@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
+import pdfjsLib from "../pdfConfig";
 function CandidateDetail() {
   const [file, setFile] = useState(null);
   const [textContent, setTextContent] = useState("");
