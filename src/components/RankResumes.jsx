@@ -14,7 +14,7 @@ function RankResumes({ jobDesc, requiredSkills, setAnalytics }) {
       const res = await API.post(
         "/rank",
         { job_description: jobDesc, required_skills: requiredSkills },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setResults(res.data.results);
       if (res.data.analytics) {
@@ -49,14 +49,24 @@ function RankResumes({ jobDesc, requiredSkills, setAnalytics }) {
           <h3 className="text-lg font-semibold mb-2">Results</h3>
           <ul className="space-y-2">
             {results.map((r) => (
+              // <li
+              //   key={r.resume_id}
+              //   onClick={() => handleSelectCandidate(r)}
+              //   className="cursor-pointer p-2 border rounded hover:bg-gray-500"
+              // >
+              //   Resume {r.resume_id} → Score:{" "}
+              //   {typeof r.score === "number" ? r.score.toFixed(2) : "N/A"} | Skills:{" "}
+              //   {r.matched_skills?.join(", ") || "None"}
+              // </li>
               <li
                 key={r.resume_id}
                 onClick={() => handleSelectCandidate(r)}
                 className="cursor-pointer p-2 border rounded hover:bg-gray-500"
               >
                 Resume {r.resume_id} → Score:{" "}
-                {typeof r.score === "number" ? r.score.toFixed(2) : "N/A"} | Skills:{" "}
-                {r.matched_skills?.join(", ") || "None"}
+                {typeof r.score === "number" ? r.score.toFixed(2) : "N/A"} |
+                Skills: {r.matched_skills?.join(", ") || "None"} | File:{" "}
+                {r.filename || "N/A"}
               </li>
             ))}
           </ul>
