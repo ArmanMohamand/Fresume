@@ -117,7 +117,6 @@ ChartJS.register(
   BarElement
 );
 
-// 🔥 dynamic colors generator (IMPORTANT FIX)
 const generateColors = (count) => {
   const colors = [];
   for (let i = 0; i < count; i++) {
@@ -127,15 +126,17 @@ const generateColors = (count) => {
 };
 
 function Analytics({ analytics }) {
-  if (!analytics) {
+  const storedAnalytics = JSON.parse(localStorage.getItem("analytics") || "{}");
+  const data = analytics || storedAnalytics;
+
+  if (!data || !data.skill_distribution) {
     return <p className="p-6">No analytics available yet</p>;
   }
 
-  const skills = analytics.skill_distribution || {};
+  const skills = data.skill_distribution || {};
   const skillLabels = Object.keys(skills);
   const skillValues = Object.values(skills);
 
-  // ✅ FIXED PIE DATA
   const skillData = {
     labels: skillLabels,
     datasets: [
@@ -147,13 +148,12 @@ function Analytics({ analytics }) {
     ],
   };
 
-  // BAR DATA (FIXED SAFE)
   const scoreData = {
-    labels: analytics.scores?.map((_, i) => `Resume ${i + 1}`) || [],
+    labels: data.scores?.map((_, i) => `Resume ${i + 1}`) || [],
     datasets: [
       {
         label: "Scores",
-        data: analytics.scores || [],
+        data: data.scores || [],
         backgroundColor: "#36A2EB",
       },
     ],
@@ -165,17 +165,17 @@ function Analytics({ analytics }) {
 
       <p className="mb-4">
         <strong>Average Score:</strong>{" "}
-        {analytics.average_score?.toFixed(2) || "N/A"}
+        {data.average_score?.toFixed(2) || "N/A"}
       </p>
 
-      {/* 🔥 CENTERED BIG PIE CHART */}
+      {/* Pie Chart */}
       <div className="flex justify-center">
         <div className="w-[400px] h-[400px]">
           <Pie data={skillData} />
         </div>
       </div>
 
-      {/* BAR CHART */}
+      {/* Bar Chart */}
       <div className="mt-8">
         <Bar data={scoreData} />
       </div>
