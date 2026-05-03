@@ -441,16 +441,22 @@ function UploadResume() {
         return;
       }
 
-      await API.post(
-        "/upload",
-        { filename: file.name, text },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      // await API.post(
+      //   "/upload",
+      //   { filename: file.name, text },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "application/json",
+      //     },
+      //   },
+      // );
+      await API.post("/upload", JSON.stringify({ filename: file.name, text }), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       const rankRes = await API.post(
         "/rank",
