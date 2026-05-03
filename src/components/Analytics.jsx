@@ -96,6 +96,95 @@
 
 // export default Analytics;
 
+// import React from "react";
+// import { Pie, Bar } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+// } from "chart.js";
+
+// ChartJS.register(
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement
+// );
+
+// const generateColors = (count) => {
+//   const colors = [];
+//   for (let i = 0; i < count; i++) {
+//     colors.push(`hsl(${(i * 360) / count}, 70%, 55%)`);
+//   }
+//   return colors;
+// };
+
+// function Analytics({ analytics }) {
+//   const storedAnalytics = JSON.parse(localStorage.getItem("analytics") || "{}");
+//   const data = analytics || storedAnalytics;
+
+//   if (!data || !data.skill_distribution) {
+//     return <p className="p-6">No analytics available yet</p>;
+//   }
+
+//   const skills = data.skill_distribution || {};
+//   const skillLabels = Object.keys(skills);
+//   const skillValues = Object.values(skills);
+
+//   const skillData = {
+//     labels: skillLabels,
+//     datasets: [
+//       {
+//         data: skillValues,
+//         backgroundColor: generateColors(skillLabels.length),
+//         borderWidth: 1,
+//       },
+//     ],
+//   };
+
+//   const scoreData = {
+//     labels: data.scores?.map((_, i) => `Resume ${i + 1}`) || [],
+//     datasets: [
+//       {
+//         label: "Scores",
+//         data: data.scores || [],
+//         backgroundColor: "#36A2EB",
+//       },
+//     ],
+//   };
+
+//   return (
+//     <div className="p-6">
+//       <h2 className="text-xl font-bold mb-4">Analytics Dashboard</h2>
+
+//       <p className="mb-4">
+//         <strong>Average Score:</strong>{" "}
+//         {data.average_score?.toFixed(2) || "N/A"}
+//       </p>
+
+//       {/* Pie Chart */}
+//       <div className="flex justify-center">
+//         <div className="w-[400px] h-[400px]">
+//           <Pie data={skillData} />
+//         </div>
+//       </div>
+
+//       {/* Bar Chart */}
+//       <div className="mt-8">
+//         <Bar data={scoreData} />
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Analytics;
+
 import React from "react";
 import { Pie, Bar } from "react-chartjs-2";
 import {
@@ -114,7 +203,7 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
 );
 
 const generateColors = (count) => {
@@ -125,58 +214,57 @@ const generateColors = (count) => {
   return colors;
 };
 
-function Analytics({ analytics }) {
-  const storedAnalytics = JSON.parse(localStorage.getItem("analytics") || "{}");
-  const data = analytics || storedAnalytics;
-
-  if (!data || !data.skill_distribution) {
-    return <p className="p-6">No analytics available yet</p>;
+function Analytics({ candidate }) {
+  if (!candidate || !candidate.analytics) {
+    return <p className="p-6">Select a resume to view analytics</p>;
   }
 
-  const skills = data.skill_distribution || {};
-  const skillLabels = Object.keys(skills);
-  const skillValues = Object.values(skills);
+  const analytics = candidate.analytics;
 
   const skillData = {
-    labels: skillLabels,
+    labels: Object.keys(analytics.skill_distribution || {}),
     datasets: [
       {
-        data: skillValues,
-        backgroundColor: generateColors(skillLabels.length),
-        borderWidth: 1,
+        data: Object.values(analytics.skill_distribution || {}),
+        backgroundColor: generateColors(
+          Object.keys(analytics.skill_distribution || {}).length,
+        ),
       },
     ],
   };
 
   const scoreData = {
-    labels: data.scores?.map((_, i) => `Resume ${i + 1}`) || [],
+    labels: [`Resume ${candidate.resume_id}`],
     datasets: [
       {
-        label: "Scores",
-        data: data.scores || [],
+        label: "Score",
+        data: analytics.scores || [],
         backgroundColor: "#36A2EB",
       },
     ],
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Analytics Dashboard</h2>
+    <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+      <h2 className="text-xl font-bold mb-4">
+        Analytics for{" "}
+        {candidate.metadata?.name || `Resume ${candidate.resume_id}`}
+      </h2>
 
       <p className="mb-4">
         <strong>Average Score:</strong>{" "}
-        {data.average_score?.toFixed(2) || "N/A"}
+        {analytics.average_score?.toFixed(2) || "N/A"}
       </p>
 
       {/* Pie Chart */}
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-6">
         <div className="w-[400px] h-[400px]">
           <Pie data={skillData} />
         </div>
       </div>
 
       {/* Bar Chart */}
-      <div className="mt-8">
+      <div>
         <Bar data={scoreData} />
       </div>
     </div>
