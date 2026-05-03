@@ -530,7 +530,6 @@
 // }
 
 // export default UploadResume;
-
 import React, { useState, useEffect } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
@@ -544,32 +543,32 @@ function UploadResume() {
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState("");
 
+  // ---------------- GET USERNAME FROM JWT ----------------
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) {
       try {
         const decoded = jwtDecode(token);
+
         console.log("Decoded token:", decoded);
 
-        setUsername(
-          decoded.username ||
-            decoded.sub?.username ||
-            decoded.identity?.username ||
-            "",
-        );
+        // ✅ Updated JWT structure
+        setUsername(decoded.username || "");
       } catch (err) {
         console.error("JWT Decode Error:", err);
       }
     }
   }, []);
 
+  // ---------------- FILE SELECT ----------------
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
       setFile(e.target.files[0]);
     }
   };
 
+  // ---------------- DRAG & DROP ----------------
   const handleDrop = (e) => {
     e.preventDefault();
 
@@ -599,7 +598,7 @@ function UploadResume() {
         textContent += item.str + " ";
       });
 
-      // OCR fallback
+      // OCR fallback if page has no text
       if (text.items.length === 0) {
         console.log(`Running OCR on page ${i}`);
 
@@ -700,7 +699,11 @@ function UploadResume() {
 
       console.log("Rank response:", rankRes.data);
 
-      localStorage.setItem("analytics", JSON.stringify(rankRes.data.analytics));
+      // Save analytics
+      localStorage.setItem(
+        "analytics",
+        JSON.stringify(rankRes.data.analytics),
+      );
 
       setMessage("Resume uploaded and ranked successfully!");
       setFile(null);
@@ -709,6 +712,7 @@ function UploadResume() {
 
       setMessage(
         err.response?.data?.error ||
+          err.response?.data?.msg ||
           err.response?.data?.message ||
           err.message ||
           "Upload failed",
@@ -728,6 +732,7 @@ function UploadResume() {
         Upload Resume
       </h2>
 
+      {/* ---------------- DRAG AREA ---------------- */}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -744,6 +749,7 @@ function UploadResume() {
         </p>
       </div>
 
+      {/* ---------------- FILE INPUT ---------------- */}
       <input
         type="file"
         accept=".pdf,.txt"
@@ -751,10 +757,14 @@ function UploadResume() {
         className="mt-4 w-full text-gray-700 dark:text-gray-200"
       />
 
+      {/* ---------------- FILE NAME ---------------- */}
       {file && (
-        <p className="mt-3 text-sm text-gray-300">Selected File: {file.name}</p>
+        <p className="mt-3 text-sm text-gray-300">
+          Selected File: {file.name}
+        </p>
       )}
 
+      {/* ---------------- BUTTON ---------------- */}
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
@@ -767,8 +777,11 @@ function UploadResume() {
         {uploading ? "Uploading..." : "Upload Resume"}
       </button>
 
+      {/* ---------------- MESSAGE ---------------- */}
       {message && (
-        <p className="mt-4 text-center text-white font-medium">{message}</p>
+        <p className="mt-4 text-center text-white font-medium">
+          {message}
+        </p>
       )}
     </div>
   );
