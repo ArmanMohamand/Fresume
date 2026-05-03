@@ -211,6 +211,7 @@
 // }
 
 // export default UploadResume;
+
 import React, { useState, useEffect } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
@@ -227,7 +228,9 @@ function UploadResume() {
     const token = localStorage.getItem("token");
     if (token) {
       const decoded = jwtDecode(token);
-      setUsername(decoded.username);
+      console.log("Decoded token:", decoded); // ✅ check payload structure
+      // Adjust depending on payload structure
+      setUsername(decoded.username || decoded.sub?.username || "");
     }
   }, []);
 
