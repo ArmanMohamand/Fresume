@@ -1,258 +1,333 @@
-import React, { useState, useEffect } from "react";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
-import API from "../api";
-import pdfjsLib from "../pdfConfig";
-import { jwtDecode } from "jwt-decode";
-import Tesseract from "tesseract.js";
+// import React, { useState, useEffect } from "react";
+// import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+// import API from "../api";
+// import pdfjsLib from "../pdfConfig";
+// import { jwtDecode } from "jwt-decode";
+// import Tesseract from "tesseract.js";
 
-function UploadResume() {
-  const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [username, setUsername] = useState("");
+// function UploadResume() {
+//   const [file, setFile] = useState(null);
+//   const [message, setMessage] = useState("");
+//   const [uploading, setUploading] = useState(false);
+//   const [username, setUsername] = useState("");
 
-  // ---------------- GET USERNAME FROM JWT ----------------
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+//   // ---------------- GET USERNAME FROM JWT ----------------
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
 
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
+//     if (token) {
+//       try {
+//         const decoded = jwtDecode(token);
 
-        console.log("Decoded token:", decoded);
+//         console.log("Decoded token:", decoded);
 
-        // ✅ Updated JWT structure
-        setUsername(decoded.username || "");
-      } catch (err) {
-        console.error("JWT Decode Error:", err);
-      }
+//         // ✅ Updated JWT structure
+//         setUsername(decoded.username || "");
+//       } catch (err) {
+//         console.error("JWT Decode Error:", err);
+//       }
+//     }
+//   }, []);
+
+//   // ---------------- FILE SELECT ----------------
+//   const handleFileChange = (e) => {
+//     if (e.target.files.length > 0) {
+//       setFile(e.target.files[0]);
+//     }
+//   };
+
+//   // ---------------- DRAG & DROP ----------------
+//   const handleDrop = (e) => {
+//     e.preventDefault();
+
+//     if (e.dataTransfer.files.length > 0) {
+//       setFile(e.dataTransfer.files[0]);
+//     }
+//   };
+
+//   const handleDragOver = (e) => e.preventDefault();
+
+//   // ---------------- PDF TEXT EXTRACTION ----------------
+//   const extractPdfText = async (file) => {
+//     const arrayBuffer = await file.arrayBuffer();
+
+//     const pdf = await pdfjsLib.getDocument({
+//       data: arrayBuffer,
+//     }).promise;
+
+//     let textContent = "";
+
+//     for (let i = 1; i <= pdf.numPages; i++) {
+//       const page = await pdf.getPage(i);
+
+//       const text = await page.getTextContent();
+
+//       text.items.forEach((item) => {
+//         textContent += item.str + " ";
+//       });
+
+//       // OCR fallback if page has no text
+//       if (text.items.length === 0) {
+//         console.log(`Running OCR on page ${i}`);
+
+//         const viewport = page.getViewport({ scale: 2 });
+
+//         const canvas = document.createElement("canvas");
+//         const context = canvas.getContext("2d");
+
+//         canvas.width = viewport.width;
+//         canvas.height = viewport.height;
+
+//         await page.render({
+//           canvasContext: context,
+//           viewport,
+//         }).promise;
+
+//         const result = await Tesseract.recognize(canvas, "eng");
+
+//         textContent += result.data.text;
+//       }
+//     }
+
+//     return textContent;
+//   };
+
+//   // ---------------- UPLOAD ----------------
+//   const handleUpload = async () => {
+//     if (!file) {
+//       setMessage("Please select a file");
+//       return;
+//     }
+
+//     const token = localStorage.getItem("token");
+
+//     if (!token) {
+//       setMessage("User not authenticated");
+//       return;
+//     }
+
+//     try {
+//       setUploading(true);
+//       setMessage("");
+
+//       let text = "";
+
+//       // PDF
+//       if (file.type === "application/pdf") {
+//         text = await extractPdfText(file);
+//       }
+
+//       // TXT
+//       else {
+//         text = await file.text();
+//       }
+
+//       console.log("Extracted text length:", text.length);
+//       console.log("Extracted text sample:", text.slice(0, 300));
+
+//       if (!text || text.trim() === "") {
+//         setMessage("Could not extract text from resume");
+//         setUploading(false);
+//         return;
+//       }
+
+//       // ---------------- UPLOAD REQUEST ----------------
+//       const uploadRes = await API.post(
+//         "/upload",
+//         {
+//           filename: file.name,
+//           text: text,
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         },
+//       );
+
+//       console.log("Upload response:", uploadRes.data);
+
+//       // ---------------- RANK REQUEST ----------------
+//       const rankRes = await API.post(
+//         "/rank",
+//         {
+//           job_description: localStorage.getItem("jobDesc") || "",
+//           required_skills: JSON.parse(
+//             localStorage.getItem("requiredSkills") || "[]",
+//           ),
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         },
+//       );
+
+//       console.log("Rank response:", rankRes.data);
+
+//       // Save analytics
+//       localStorage.setItem(
+//         "analytics",
+//         JSON.stringify(rankRes.data.analytics),
+//       );
+
+//       setMessage("Resume uploaded and ranked successfully!");
+//       setFile(null);
+//     } catch (err) {
+//       console.error("Upload Error:", err);
+
+//       setMessage(
+//         err.response?.data?.error ||
+//           err.response?.data?.msg ||
+//           err.response?.data?.message ||
+//           err.message ||
+//           "Upload failed",
+//       );
+//     } finally {
+//       setUploading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="max-w-xl mx-auto mt-12 bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-2xl">
+//       <h1 className="text-2xl font-bold mb-6 text-center text-white">
+//         Welcome, {username}
+//       </h1>
+
+//       <h2 className="text-3xl font-extrabold mb-8 text-center text-white">
+//         Upload Resume
+//       </h2>
+
+//       {/* ---------------- DRAG AREA ---------------- */}
+//       <div
+//         onDrop={handleDrop}
+//         onDragOver={handleDragOver}
+//         className="border-2 border-dashed border-gray-400 rounded-xl p-12 text-center mb-6 hover:border-green-500 transition cursor-pointer bg-gray-50 dark:bg-gray-800"
+//       >
+//         <CloudArrowUpIcon className="mx-auto h-16 w-16 text-green-500 mb-4" />
+
+//         <p className="text-gray-700 dark:text-gray-300 font-medium">
+//           Drag & drop your resume here
+//         </p>
+
+//         <p className="text-sm text-gray-500 dark:text-gray-400">
+//           or click below to select a file
+//         </p>
+//       </div>
+
+//       {/* ---------------- FILE INPUT ---------------- */}
+//       <input
+//         type="file"
+//         accept=".pdf,.txt"
+//         onChange={handleFileChange}
+//         className="mt-4 w-full text-gray-700 dark:text-gray-200"
+//       />
+
+//       {/* ---------------- FILE NAME ---------------- */}
+//       {file && (
+//         <p className="mt-3 text-sm text-gray-300">
+//           Selected File: {file.name}
+//         </p>
+//       )}
+
+//       {/* ---------------- BUTTON ---------------- */}
+//       <button
+//         onClick={handleUpload}
+//         disabled={!file || uploading}
+//         className={`w-full mt-4 py-3 rounded-xl text-white font-semibold transition ${
+//           uploading
+//             ? "bg-gray-500 cursor-not-allowed"
+//             : "bg-green-500 hover:bg-green-600"
+//         }`}
+//       >
+//         {uploading ? "Uploading..." : "Upload Resume"}
+//       </button>
+
+//       {/* ---------------- MESSAGE ---------------- */}
+//       {message && (
+//         <p className="mt-4 text-center text-white font-medium">
+//           {message}
+//         </p>
+//       )}
+//     </div>
+//   );
+// }
+
+// export default UploadResume;
+const handleUpload = async () => {
+  if (!file) {
+    setMessage("Please select a file");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    setMessage("User not authenticated");
+    return;
+  }
+
+  try {
+    setUploading(true);
+    setMessage("");
+
+    let text = "";
+
+    // PDF
+    if (file.type === "application/pdf") {
+      text = await extractPdfText(file);
     }
-  }, []);
 
-  // ---------------- FILE SELECT ----------------
-  const handleFileChange = (e) => {
-    if (e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  // ---------------- DRAG & DROP ----------------
-  const handleDrop = (e) => {
-    e.preventDefault();
-
-    if (e.dataTransfer.files.length > 0) {
-      setFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleDragOver = (e) => e.preventDefault();
-
-  // ---------------- PDF TEXT EXTRACTION ----------------
-  const extractPdfText = async (file) => {
-    const arrayBuffer = await file.arrayBuffer();
-
-    const pdf = await pdfjsLib.getDocument({
-      data: arrayBuffer,
-    }).promise;
-
-    let textContent = "";
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-
-      const text = await page.getTextContent();
-
-      text.items.forEach((item) => {
-        textContent += item.str + " ";
-      });
-
-      // OCR fallback if page has no text
-      if (text.items.length === 0) {
-        console.log(`Running OCR on page ${i}`);
-
-        const viewport = page.getViewport({ scale: 2 });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-          viewport,
-        }).promise;
-
-        const result = await Tesseract.recognize(canvas, "eng");
-
-        textContent += result.data.text;
-      }
+    // TXT
+    else {
+      text = await file.text();
     }
 
-    return textContent;
-  };
+    console.log("Extracted text length:", text.length);
+    console.log("Extracted text sample:", text.slice(0, 300));
 
-  // ---------------- UPLOAD ----------------
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a file");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setMessage("User not authenticated");
-      return;
-    }
-
-    try {
-      setUploading(true);
-      setMessage("");
-
-      let text = "";
-
-      // PDF
-      if (file.type === "application/pdf") {
-        text = await extractPdfText(file);
-      }
-
-      // TXT
-      else {
-        text = await file.text();
-      }
-
-      console.log("Extracted text length:", text.length);
-      console.log("Extracted text sample:", text.slice(0, 300));
-
-      if (!text || text.trim() === "") {
-        setMessage("Could not extract text from resume");
-        setUploading(false);
-        return;
-      }
-
-      // ---------------- UPLOAD REQUEST ----------------
-      const uploadRes = await API.post(
-        "/upload",
-        {
-          filename: file.name,
-          text: text,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      console.log("Upload response:", uploadRes.data);
-
-      // ---------------- RANK REQUEST ----------------
-      const rankRes = await API.post(
-        "/rank",
-        {
-          job_description: localStorage.getItem("jobDesc") || "",
-          required_skills: JSON.parse(
-            localStorage.getItem("requiredSkills") || "[]",
-          ),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      console.log("Rank response:", rankRes.data);
-
-      // Save analytics
-      localStorage.setItem(
-        "analytics",
-        JSON.stringify(rankRes.data.analytics),
-      );
-
-      setMessage("Resume uploaded and ranked successfully!");
-      setFile(null);
-    } catch (err) {
-      console.error("Upload Error:", err);
-
-      setMessage(
-        err.response?.data?.error ||
-          err.response?.data?.msg ||
-          err.response?.data?.message ||
-          err.message ||
-          "Upload failed",
-      );
-    } finally {
+    if (!text || text.trim() === "") {
+      setMessage("Could not extract text from resume");
       setUploading(false);
+      return;
     }
-  };
 
-  return (
-    <div className="max-w-xl mx-auto mt-12 bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-2xl">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">
-        Welcome, {username}
-      </h1>
+    // ---------------- UPLOAD REQUEST ONLY ----------------
+    const uploadRes = await API.post(
+      "/upload",
+      {
+        filename: file.name,
+        text: text,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
-      <h2 className="text-3xl font-extrabold mb-8 text-center text-white">
-        Upload Resume
-      </h2>
+    console.log("Upload response:", uploadRes.data);
 
-      {/* ---------------- DRAG AREA ---------------- */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        className="border-2 border-dashed border-gray-400 rounded-xl p-12 text-center mb-6 hover:border-green-500 transition cursor-pointer bg-gray-50 dark:bg-gray-800"
-      >
-        <CloudArrowUpIcon className="mx-auto h-16 w-16 text-green-500 mb-4" />
+    // ✅ NO RANK API HERE
+    // ✅ NO ANALYTICS HERE
 
-        <p className="text-gray-700 dark:text-gray-300 font-medium">
-          Drag & drop your resume here
-        </p>
+    setMessage("Resume uploaded successfully!");
+    setFile(null);
 
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          or click below to select a file
-        </p>
-      </div>
+  } catch (err) {
+    console.error("Upload Error:", err);
 
-      {/* ---------------- FILE INPUT ---------------- */}
-      <input
-        type="file"
-        accept=".pdf,.txt"
-        onChange={handleFileChange}
-        className="mt-4 w-full text-gray-700 dark:text-gray-200"
-      />
-
-      {/* ---------------- FILE NAME ---------------- */}
-      {file && (
-        <p className="mt-3 text-sm text-gray-300">
-          Selected File: {file.name}
-        </p>
-      )}
-
-      {/* ---------------- BUTTON ---------------- */}
-      <button
-        onClick={handleUpload}
-        disabled={!file || uploading}
-        className={`w-full mt-4 py-3 rounded-xl text-white font-semibold transition ${
-          uploading
-            ? "bg-gray-500 cursor-not-allowed"
-            : "bg-green-500 hover:bg-green-600"
-        }`}
-      >
-        {uploading ? "Uploading..." : "Upload Resume"}
-      </button>
-
-      {/* ---------------- MESSAGE ---------------- */}
-      {message && (
-        <p className="mt-4 text-center text-white font-medium">
-          {message}
-        </p>
-      )}
-    </div>
-  );
-}
-
-export default UploadResume;
+    setMessage(
+      err.response?.data?.error ||
+      err.response?.data?.msg ||
+      err.response?.data?.message ||
+      err.message ||
+      "Upload failed",
+    );
+  } finally {
+    setUploading(false);
+  }
+};
