@@ -432,12 +432,14 @@ function UploadResume() {
           ? await extractPdfText(file)
           : await file.text();
 
+      console.log("Extracted text length:", text.length);
+      console.log("Extracted text sample:", text.slice(0, 200));
+
       if (!text || text.trim() === "") {
         setMessage("Error: Could not extract text from resume");
         setUploading(false);
         return;
       }
-      
 
       await API.post(
         "/upload",
@@ -447,7 +449,7 @@ function UploadResume() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const rankRes = await API.post(
@@ -455,7 +457,7 @@ function UploadResume() {
         {
           job_description: localStorage.getItem("jobDesc") || "",
           required_skills: JSON.parse(
-            localStorage.getItem("requiredSkills") || "[]"
+            localStorage.getItem("requiredSkills") || "[]",
           ),
         },
         {
@@ -463,7 +465,7 @@ function UploadResume() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       localStorage.setItem("analytics", JSON.stringify(rankRes.data.analytics));
@@ -471,7 +473,7 @@ function UploadResume() {
       setFile(null);
     } catch (err) {
       setMessage(
-        "Upload failed: " + (err.response?.data?.error || err.message)
+        "Upload failed: " + (err.response?.data?.error || err.message),
       );
     } finally {
       setUploading(false);
