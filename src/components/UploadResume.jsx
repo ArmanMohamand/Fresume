@@ -211,7 +211,6 @@
 // }
 
 // export default UploadResume;
-
 import React, { useState, useEffect } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import API from "../api";
@@ -266,26 +265,49 @@ function UploadResume() {
           ? await extractPdfText(file)
           : await file.text();
 
+      // ✅ Prevent sending empty text
+      if (!text || text.trim() === "") {
+        setMessage("Error: Could not extract text from resume");
+        setUploading(false);
+        return;
+      }
+
+      // ✅ Upload resume with proper JSON headers
       await API.post(
         "/upload",
         { filename: file.name, text },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
 
+      // ✅ Trigger ranking with proper JSON headers
       const rankRes = await API.post(
         "/rank",
         {
           job_description: localStorage.getItem("jobDesc") || "",
-          required_skills: JSON.parse(localStorage.getItem("requiredSkills") || "[]"),
+          required_skills: JSON.parse(
+            localStorage.getItem("requiredSkills") || "[]",
+          ),
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       localStorage.setItem("analytics", JSON.stringify(rankRes.data.analytics));
       setMessage("Upload + Ranking completed successfully!");
       setFile(null);
     } catch (err) {
-      setMessage("Upload failed: " + err.message);
+      setMessage(
+        "Upload failed: " + (err.response?.data?.error || err.message),
+      );
     } finally {
       setUploading(false);
     }
