@@ -501,6 +501,120 @@
 
 // export default RankResumes;
 
+// import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import API from "../api";
+
+// function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
+//   const [results, setResults] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
+
+//   // ---------------- NORMALIZE ----------------
+//   const normalize = (data) => {
+//     if (!data) return [];
+//     return data
+//       .toString()
+//       .toLowerCase()
+//       .split(",")
+//       .map((s) => s.trim())
+//       .filter(Boolean);
+//   };
+
+//   // ---------------- MATCH % ----------------
+//   const getSkillMatchPercentage = (candidateSkills, requiredSkills) => {
+//     const cSkills = normalize(candidateSkills);
+//     const rSkills = normalize(requiredSkills);
+
+//     if (rSkills.length === 0) return 0;
+
+//     const matched = rSkills.filter((skill) => cSkills.includes(skill)).length;
+
+//     return Math.round((matched / rSkills.length) * 100);
+//   };
+
+//   // ---------------- API CALL ----------------
+//   const handleRank = async () => {
+//     const token = localStorage.getItem("token");
+
+//     if (!token) {
+//       alert("Login required");
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+
+//       const res = await API.post(
+//         "/rank",
+//         {
+//           job_description: jobDesc || "",
+//           required_skills: requiredSkills || [],
+//         },
+//         {
+//           headers: { Authorization: `Bearer ${token}` },
+//         },
+//       );
+
+//       setResults(res.data.ranked || []);
+//     } catch (err) {
+//       alert(err.response?.data?.error || "Ranking failed");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // ---------------- SELECT ----------------
+//   const handleSelect = (candidate) => {
+//     setSelectedCandidate(candidate);
+//     navigate("/analytics");
+//   };
+
+//   return (
+//     <div className="p-6 text-white">
+//       <button onClick={handleRank} className="bg-blue-500 px-4 py-2 rounded">
+//         {loading ? "Ranking..." : "Rank"}
+//       </button>
+
+//       {/* RESULTS */}
+//       <div className="mt-6 space-y-4">
+//         {results.map((r, i) => {
+//           const skills = r.skills || r.matched_skills || [];
+//           const percent = getSkillMatchPercentage(skills, requiredSkills);
+
+//           return (
+//             <div
+//               key={r.resume_id}
+//               onClick={() => handleSelect(r)}
+//               className="p-4 border rounded cursor-pointer bg-gray-800"
+//             >
+//               <h3 className="font-bold">Resume {r.resume_id}</h3>
+
+//               <p>Score: {r.score?.toFixed(3) || "0.000"}</p>
+
+//               {/* BAR */}
+//               <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+//                 <div
+//                   className="bg-green-500 h-2 rounded-full"
+//                   style={{ width: `${percent}%` }}
+//                 />
+//               </div>
+
+//               <p className="text-sm mt-1">Skill Match: {percent}%</p>
+
+//               <p className="mt-2">Skills: {skills.join(", ") || "None"}</p>
+
+//               <p>Email: {r.email || "N/A"}</p>
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default RankResumes;
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
@@ -510,99 +624,87 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ---------------- NORMALIZE ----------------
-  const normalize = (data) => {
-    if (!data) return [];
-    return data
-      .toString()
-      .toLowerCase()
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  const normalize = (arr) => {
+    if (!arr) return [];
+    if (typeof arr === "string") {
+      return arr.split(",").map((s) => s.trim().toLowerCase());
+    }
+    return arr.map((s) => s.toLowerCase());
   };
 
-  // ---------------- MATCH % ----------------
-  const getSkillMatchPercentage = (candidateSkills, requiredSkills) => {
-    const cSkills = normalize(candidateSkills);
-    const rSkills = normalize(requiredSkills);
+  const getMatchPercent = (candidateSkills, required) => {
+    const c = normalize(candidateSkills);
+    const r = normalize(required);
 
-    if (rSkills.length === 0) return 0;
+    if (r.length === 0) return 0;
 
-    const matched = rSkills.filter((skill) => cSkills.includes(skill)).length;
+    const match = r.filter((s) => c.includes(s)).length;
 
-    return Math.round((matched / rSkills.length) * 100);
+    return Math.round((match / r.length) * 100);
   };
 
-  // ---------------- API CALL ----------------
   const handleRank = async () => {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert("Login required");
-      return;
-    }
+    const res = await API.post(
+      "/rank",
+      {
+        job_description: jobDesc,
+        required_skills: requiredSkills,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    try {
-      setLoading(true);
-
-      const res = await API.post(
-        "/rank",
-        {
-          job_description: jobDesc || "",
-          required_skills: requiredSkills || [],
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      setResults(res.data.ranked || []);
-    } catch (err) {
-      alert(err.response?.data?.error || "Ranking failed");
-    } finally {
-      setLoading(false);
-    }
+    setResults(res.data.ranked || []);
   };
 
-  // ---------------- SELECT ----------------
-  const handleSelect = (candidate) => {
-    setSelectedCandidate(candidate);
+  const handleSelect = (r) => {
+    setSelectedCandidate(r);
     navigate("/analytics");
   };
 
   return (
     <div className="p-6 text-white">
-      <button onClick={handleRank} className="bg-blue-500 px-4 py-2 rounded">
+      <button
+        onClick={handleRank}
+        className="bg-blue-500 px-4 py-2 rounded"
+      >
         {loading ? "Ranking..." : "Rank"}
       </button>
 
-      {/* RESULTS */}
       <div className="mt-6 space-y-4">
         {results.map((r, i) => {
-          const skills = r.skills || r.matched_skills || [];
-          const percent = getSkillMatchPercentage(skills, requiredSkills);
+          const percent = getMatchPercent(r.skills, requiredSkills);
 
           return (
             <div
               key={r.resume_id}
               onClick={() => handleSelect(r)}
-              className="p-4 border rounded cursor-pointer bg-gray-800"
+              className="p-4 border rounded bg-gray-800 cursor-pointer"
             >
-              <h3 className="font-bold">Resume {r.resume_id}</h3>
+              {/* 🏆 TOP BADGES */}
+              {i === 0 && <p>🏆 Best Candidate</p>}
+              {i === 1 && <p>🥈 2nd</p>}
+              {i === 2 && <p>🥉 3rd</p>}
 
-              <p>Score: {r.score?.toFixed(3) || "0.000"}</p>
+              <h3 className="font-bold">
+                Resume {r.resume_id}
+              </h3>
 
-              {/* BAR */}
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+              {/* SCORE */}
+              <p>Score: {r.score}</p>
+
+              {/* SKILL BAR */}
+              <div className="w-full bg-gray-700 h-2 rounded mt-2">
                 <div
-                  className="bg-green-500 h-2 rounded-full"
+                  className="bg-green-500 h-2 rounded"
                   style={{ width: `${percent}%` }}
                 />
               </div>
 
-              <p className="text-sm mt-1">Skill Match: {percent}%</p>
+              <p>Skill Match: {percent}%</p>
 
-              <p className="mt-2">Skills: {skills.join(", ") || "None"}</p>
+              <p>Skills: {r.skills?.join(", ") || "None"}</p>
 
               <p>Email: {r.email || "N/A"}</p>
             </div>
