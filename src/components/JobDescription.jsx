@@ -254,7 +254,7 @@ function JobDescription({
         onChange={(e) =>
           setDesc(e.target.value)
         }
-        className="w-full p-3 border rounded mb-4 text-black"
+        className="w-full p-3 border rounded mb-4 text-white"
         rows={6}
       />
 
@@ -266,7 +266,7 @@ function JobDescription({
         onChange={(e) =>
           setSkills(e.target.value)
         }
-        className="w-full p-3 border rounded mb-4 text-black"
+        className="w-full p-3 border rounded mb-4 text-white"
       />
 
       {/* ---------------- END TIME ---------------- */}
@@ -276,7 +276,7 @@ function JobDescription({
         onChange={(e) =>
           setEndTime(e.target.value)
         }
-        className="w-full p-3 border rounded mb-4 text-black"
+        className="w-full p-3 border rounded mb-4 text-white"
       />
 
       {/* ---------------- SAVE BUTTON ---------------- */}
