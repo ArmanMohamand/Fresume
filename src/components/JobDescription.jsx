@@ -601,24 +601,65 @@ function JobDescription({ setJobDesc, setRequiredSkills }) {
   };
 
   // ✅ DELETE
+  // const handleDelete = async (id) => {
+  //   const token = localStorage.getItem("token");
+
+  //   try {
+  //     const res = await fetch(`${API_URL}/jobdesc/delete/${id}`, {
+  //       method: "DELETE",
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (!res.ok) {
+  //       const data = await res.json();
+  //       setPopupMessage(data.error);
+  //       return;
+  //     }
+
+  //     setSavedEntries((prev) => prev.filter((j) => j._id !== id));
+  //     setPopupMessage("Deleted successfully");
+  //   } catch {
+  //     setPopupMessage("Delete failed");
+  //   }
+  // };
   const handleDelete = async (id) => {
+    console.log("DELETE ID:", id);
+
+    // ❗ BLOCK INVALID IDS
+    if (!id || id === 0 || id === "0") {
+      setPopupMessage("Invalid job ID");
+      return;
+    }
+
     const token = localStorage.getItem("token");
 
     try {
       const res = await fetch(`${API_URL}/jobdesc/delete/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
+      // safely parse response
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = null;
+      }
+
       if (!res.ok) {
-        const data = await res.json();
-        setPopupMessage(data.error);
+        setPopupMessage(data?.error || "Delete failed");
         return;
       }
 
-      setSavedEntries((prev) => prev.filter((j) => j._id !== id));
+      // remove from UI safely
+      setSavedEntries((prev) => prev.filter((j) => j._id && j._id !== id));
+
       setPopupMessage("Deleted successfully");
-    } catch {
+    } catch (err) {
+      console.error("Delete error:", err);
       setPopupMessage("Delete failed");
     }
   };
@@ -718,7 +759,16 @@ function JobDescription({ setJobDesc, setRequiredSkills }) {
                   </button>
 
                   <button
-                    onClick={() => handleDelete(entry._id)}
+                    onClick={() => {
+                      console.log("ENTRY TO DELETE:", entry);
+
+                      if (!entry._id) {
+                        setPopupMessage("Invalid job (missing ID)");
+                        return;
+                      }
+
+                      handleDelete(entry._id);
+                    }}
                     className="px-3 py-1 bg-red-500 text-white rounded"
                   >
                     Delete
