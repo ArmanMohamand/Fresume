@@ -716,6 +716,7 @@
 // }
 
 // export default RankResumes;
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
@@ -725,6 +726,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // ---------------- NORMALIZE ----------------
   const normalize = (arr) => {
     if (!arr) return [];
     if (typeof arr === "string") {
@@ -733,17 +735,19 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
     return arr.map((s) => String(s).toLowerCase());
   };
 
+  // ---------------- MATCH % ----------------
   const getMatchPercent = (candidateSkills, required) => {
     const c = normalize(candidateSkills);
     const r = normalize(required);
 
     if (r.length === 0) return 0;
 
-    const match = r.filter((s) => c.includes(s)).length;
+    const matched = r.filter((s) => c.includes(s)).length;
 
-    return Math.round((match / r.length) * 100);
+    return Math.round((matched / r.length) * 100);
   };
 
+  // ---------------- RANK API ----------------
   const handleRank = async () => {
     const token = localStorage.getItem("token");
 
@@ -769,22 +773,39 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
     }
   };
 
+  // ---------------- SELECT CANDIDATE ----------------
   const handleSelect = (candidate) => {
     setSelectedCandidate(candidate);
-
-    // 🔥 pass full state to analytics
     navigate("/analytics", { state: { candidate } });
   };
 
   return (
     <div className="p-6 text-white">
+
+      {/* ================= TOP INFO BOX ================= */}
+      <div className="mb-6 p-4 rounded-xl bg-blue-500/20 border border-blue-400">
+        <h2 className="text-xl font-bold mb-2">📌 How to Use This Page</h2>
+
+        <p>1️⃣ Click <b>Rank Button</b> to generate ranked candidates</p>
+
+        <p className="mt-1">
+          2️⃣ After ranking, click any <b>candidate card</b> to open Analytics
+        </p>
+
+        <p className="mt-1">
+          3️⃣ Analytics page shows <b>charts, score breakdown & skills</b>
+        </p>
+      </div>
+
+      {/* ================= RANK BUTTON ================= */}
       <button
         onClick={handleRank}
-        className="bg-blue-500 px-4 py-2 rounded"
+        className="bg-blue-500 px-5 py-2 rounded font-semibold hover:bg-blue-600"
       >
-        {loading ? "Ranking..." : "Rank"}
+        {loading ? "Ranking..." : "Rank Resumes"}
       </button>
 
+      {/* ================= RESULTS ================= */}
       <div className="mt-6 space-y-4">
         {results.map((r, i) => {
           const percent = getMatchPercent(r.skills, requiredSkills);
@@ -795,25 +816,24 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
               onClick={() => handleSelect(r)}
               className="p-5 border rounded-xl bg-gray-800 cursor-pointer hover:scale-[1.02] transition"
             >
+
               {/* 🏆 BADGES */}
               {i === 0 && <p>🏆 Best Candidate</p>}
-              {i === 1 && <p>🥈 2nd</p>}
-              {i === 2 && <p>🥉 3rd</p>}
+              {i === 1 && <p>🥈 2nd Best</p>}
+              {i === 2 && <p>🥉 3rd Best</p>}
 
-              <h3 className="font-bold text-lg">
+              {/* NAME */}
+              <h3 className="font-bold text-lg mt-1">
                 Resume {r.resume_id}
               </h3>
 
               {/* SCORE */}
               <p className="mt-1">
-                Score:{" "}
-                {typeof r.score === "number"
-                  ? r.score.toFixed(3)
-                  : "0.000"}
+                Score: {r.score ? r.score.toFixed(3) : "0.000"}
               </p>
 
-              {/* SKILL BAR */}
-              <div className="w-full bg-gray-700 h-2 rounded mt-2">
+              {/* SKILL MATCH BAR */}
+              <div className="w-full bg-gray-700 h-2 rounded mt-3">
                 <div
                   className="bg-green-500 h-2 rounded"
                   style={{ width: `${percent}%` }}
@@ -824,11 +844,18 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
                 Skill Match: {percent}%
               </p>
 
+              {/* SKILLS */}
               <p className="mt-2">
                 Skills: {r.skills?.join(", ") || "None"}
               </p>
 
+              {/* EMAIL */}
               <p>Email: {r.email || "N/A"}</p>
+
+              {/* HINT */}
+              <p className="text-green-400 text-sm mt-2">
+                Click to view Analytics →
+              </p>
             </div>
           );
         })}
