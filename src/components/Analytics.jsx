@@ -1,5 +1,3 @@
-
-
 // import React from "react";
 // import { Pie, Bar } from "react-chartjs-2";
 // import {
@@ -62,12 +60,12 @@
 //   return (
 //     <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg">
 //       <h2 className="text-xl font-bold mb-4">
-//         Analytics for 
+//         Analytics for
 //         {candidate.metadata?.name || `Resume ${candidate.resume_id}`}
 //       </h2>
 
 //       <p className="mb-4">
-//         <strong>Average Score:</strong> 
+//         <strong>Average Score:</strong>
 //         {analytics.average_score?.toFixed(2) || "N/A"}
 //       </p>
 
@@ -80,6 +78,84 @@
 
 //       {/* Bar Chart */}
 //       <div>
+//         <Bar data={scoreData} />
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Analytics;
+
+// import React from "react";
+// import { Pie, Bar } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+// } from "chart.js";
+
+// ChartJS.register(
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement
+// );
+
+// function Analytics({ candidate }) {
+//   if (!candidate) {
+//     return <p className="p-6">Select candidate</p>;
+//   }
+
+//   // 🧠 Build skill chart manually
+//   const skills = candidate.matched_skills || [];
+
+//   const skillData = {
+//     labels: skills,
+//     datasets: [
+//       {
+//         data: skills.map(() => 1),
+//         backgroundColor: skills.map(
+//           (_, i) => `hsl(${(i * 360) / skills.length},70%,55%)`
+//         ),
+//       },
+//     ],
+//   };
+
+//   const scoreData = {
+//     labels: ["Score"],
+//     datasets: [
+//       {
+//         label: "Score",
+//         data: [candidate.score],
+//       },
+//     ],
+//   };
+
+//   return (
+//     <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow">
+//       <h2 className="text-xl font-bold mb-4">
+//         Analytics - {candidate.metadata?.name || "Candidate"}
+//       </h2>
+
+//       <p className="mb-4">
+//         Score: {candidate.score?.toFixed(3)}
+//       </p>
+
+//       {/* Pie */}
+//       {skills.length > 0 && (
+//         <div className="w-[300px] mx-auto">
+//           <Pie data={skillData} />
+//         </div>
+//       )}
+
+//       {/* Bar */}
+//       <div className="mt-6">
 //         <Bar data={scoreData} />
 //       </div>
 //     </div>
@@ -106,25 +182,24 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
 );
 
 function Analytics({ candidate }) {
   if (!candidate) {
-    return <p className="p-6">Select candidate</p>;
+    return <p className="p-6 text-white">Select candidate</p>;
   }
 
-  // 🧠 Build skill chart manually
-  const skills = candidate.matched_skills || [];
+  const skills = candidate.skills || [];
 
   const skillData = {
-    labels: skills,
+    labels: skills.length ? skills : ["No Skills"],
     datasets: [
       {
-        data: skills.map(() => 1),
-        backgroundColor: skills.map(
-          (_, i) => `hsl(${(i * 360) / skills.length},70%,55%)`
-        ),
+        data: skills.length ? skills.map(() => 1) : [1],
+        backgroundColor: skills.length
+          ? skills.map((_, i) => `hsl(${(i * 360) / skills.length},70%,55%)`)
+          : ["gray"],
       },
     ],
   };
@@ -134,29 +209,21 @@ function Analytics({ candidate }) {
     datasets: [
       {
         label: "Score",
-        data: [candidate.score],
+        data: [candidate.score || 0],
       },
     ],
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow">
-      <h2 className="text-xl font-bold mb-4">
-        Analytics - {candidate.metadata?.name || "Candidate"}
-      </h2>
+    <div className="p-6 text-white">
+      <h2 className="text-xl font-bold mb-4">Resume {candidate.resume_id}</h2>
 
-      <p className="mb-4">
-        Score: {candidate.score?.toFixed(3)}
-      </p>
+      <p>Score: {candidate.score?.toFixed(3)}</p>
 
-      {/* Pie */}
-      {skills.length > 0 && (
-        <div className="w-[300px] mx-auto">
-          <Pie data={skillData} />
-        </div>
-      )}
+      <div className="w-[300px] mx-auto mt-4">
+        <Pie data={skillData} />
+      </div>
 
-      {/* Bar */}
       <div className="mt-6">
         <Bar data={scoreData} />
       </div>

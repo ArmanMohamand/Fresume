@@ -323,6 +323,184 @@
 
 // export default RankResumes;
 
+// import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import API from "../api";
+
+// function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
+//   const [results, setResults] = useState([]);
+//   const [loading, setLoading] = useState(false);
+
+//   const navigate = useNavigate();
+
+//   const handleRank = async () => {
+//     const token = localStorage.getItem("token");
+
+//     if (!token) {
+//       alert("User not authenticated");
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+
+//       const res = await API.post(
+//         "/rank",
+//         {
+//           job_description: jobDesc || "",
+//           required_skills: requiredSkills || [],
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         },
+//       );
+
+//       setResults(res.data.ranked || []);
+//     } catch (err) {
+//       alert(err.response?.data?.error || "Ranking failed");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSelectCandidate = (candidate) => {
+//     setSelectedCandidate(candidate);
+//     navigate("/analytics");
+//   };
+
+//   const getSkillMatchPercentage = (matched, required) => {
+//     if (!required || required.length === 0) return 0;
+
+//     const matchCount = matched?.length || 0;
+
+//     return ((matchCount / required.length) * 100).toFixed(0);
+//   };
+
+//   const getBadge = (index) => {
+//     if (index === 0)
+//       return (
+//         <span className="ml-2 px-2 py-1 text-xs bg-yellow-400 text-black rounded">
+//           🏆 Best Candidate
+//         </span>
+//       );
+
+//     if (index === 1)
+//       return (
+//         <span className="ml-2 px-2 py-1 text-xs bg-gray-300 text-black rounded">
+//           🥈 2nd
+//         </span>
+//       );
+
+//     if (index === 2)
+//       return (
+//         <span className="ml-2 px-2 py-1 text-xs bg-orange-300 text-black rounded">
+//           🥉 3rd
+//         </span>
+//       );
+
+//     return null;
+//   };
+
+//   const getCardStyle = (index) => {
+//     if (index === 0)
+//       return "border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900";
+
+//     if (index === 1)
+//       return "border-2 border-gray-400 bg-gray-100 dark:bg-gray-800";
+
+//     if (index === 2)
+//       return "border-2 border-orange-400 bg-orange-50 dark:bg-orange-900";
+
+//     return "bg-white dark:bg-gray-800";
+//   };
+
+//   return (
+//     <div className="p-6">
+//       <h2 className="text-3xl font-bold mb-4 text-white">Rank Resumes</h2>
+//       <button
+//         onClick={handleRank}
+//         disabled={loading}
+//         className={`px-6 py-3 rounded-xl text-white font-semibold ${
+//           loading
+//             ? "bg-gray-500 cursor-not-allowed"
+//             : "bg-blue-500 hover:bg-blue-600"
+//         }`}
+//       >
+//         {loading ? "Ranking..." : "Rank"}
+//       </button>
+//       {!loading && results.length === 0 && (
+//         <p className="mt-6 text-gray-300">No ranked resumes yet.</p>
+//       )}
+//       {results.length > 0 && (
+//         <div className="mt-8 space-y-4">
+//           <h3 className="text-2xl font-semibold text-white mb-2">
+//             Ranked Results
+//           </h3>
+
+//           {results.map((r, index) => {
+//             const percent = getSkillMatchPercentage(
+//               r.matched_skills,
+//               requiredSkills,
+//             );
+
+//             return (
+//               <div
+//                 key={r.resume_id}
+//                 onClick={() => handleSelectCandidate(r)}
+//                 className={`cursor-pointer p-5 rounded-2xl shadow transition hover:scale-[1.02] ${getCardStyle(
+//                   index,
+//                 )}`}
+//               >
+//                 <div className="flex items-center">
+//                   <p className="font-bold text-xl text-black dark:text-white">
+//                     {r.metadata?.name || `Resume ${r.resume_id}`}
+//                   </p>
+//                   {getBadge(index)}
+//                 </div>
+
+//                 <p className="mt-2 text-black dark:text-gray-200">
+//                   <strong>Score:</strong>{" "}
+//                   {typeof r.score === "number" ? r.score.toFixed(3) : "N/A"}
+//                 </p>
+
+//                 <p className="mt-1 text-black dark:text-gray-200">
+//                   <strong>Skill Match:</strong> {percent}%
+//                 </p>
+
+//                 <div className="w-full bg-gray-300 rounded-full h-2 mt-2">
+//                   <div
+//                     className="bg-green-500 h-2 rounded-full"
+//                     style={{ width: `${percent}%` }}
+//                   />
+//                 </div>
+
+//                 <p className="mt-2 text-black dark:text-gray-200">
+//                   <strong>Skills:</strong>{" "}
+//                   {r.matched_skills?.length > 0
+//                     ? r.matched_skills.join(", ")
+//                     : "None"}
+//                 </p>
+
+//                 <p className="mt-1 text-black dark:text-gray-200">
+//                   <strong>Email:</strong> {r.metadata?.email || "N/A"}
+//                 </p>
+
+//                 <div className="mt-4 inline-block px-3 py-1 rounded-lg bg-green-500 text-white text-sm font-semibold">
+//                   View Details
+//                 </div>
+//               </div>
+//             );
+//           })}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// export default RankResumes;
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
@@ -365,136 +543,39 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
     }
   };
 
-  const handleSelectCandidate = (candidate) => {
+  const handleSelect = (candidate) => {
     setSelectedCandidate(candidate);
     navigate("/analytics");
   };
 
-  const getSkillMatchPercentage = (matched, required) => {
-    if (!required || required.length === 0) return 0;
-
-    const matchCount = matched?.length || 0;
-
-    return ((matchCount / required.length) * 100).toFixed(0);
-  };
-
-  const getBadge = (index) => {
-    if (index === 0)
-      return (
-        <span className="ml-2 px-2 py-1 text-xs bg-yellow-400 text-black rounded">
-          🏆 Best Candidate
-        </span>
-      );
-
-    if (index === 1)
-      return (
-        <span className="ml-2 px-2 py-1 text-xs bg-gray-300 text-black rounded">
-          🥈 2nd
-        </span>
-      );
-
-    if (index === 2)
-      return (
-        <span className="ml-2 px-2 py-1 text-xs bg-orange-300 text-black rounded">
-          🥉 3rd
-        </span>
-      );
-
-    return null;
-  };
-
-  const getCardStyle = (index) => {
-    if (index === 0)
-      return "border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900";
-
-    if (index === 1)
-      return "border-2 border-gray-400 bg-gray-100 dark:bg-gray-800";
-
-    if (index === 2)
-      return "border-2 border-orange-400 bg-orange-50 dark:bg-orange-900";
-
-    return "bg-white dark:bg-gray-800";
-  };
-
   return (
-    <div className="p-6">
-      <h2 className="text-3xl font-bold mb-4 text-white">Rank Resumes</h2>
-      <button
-        onClick={handleRank}
-        disabled={loading}
-        className={`px-6 py-3 rounded-xl text-white font-semibold ${
-          loading
-            ? "bg-gray-500 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
-      >
+    <div className="p-6 text-white">
+      <button onClick={handleRank} className="bg-blue-500 px-4 py-2 rounded">
         {loading ? "Ranking..." : "Rank"}
       </button>
-      {!loading && results.length === 0 && (
-        <p className="mt-6 text-gray-300">No ranked resumes yet.</p>
-      )}
-      {results.length > 0 && (
-        <div className="mt-8 space-y-4">
-          <h3 className="text-2xl font-semibold text-white mb-2">
-            Ranked Results
-          </h3>
 
-          {results.map((r, index) => {
-            const percent = getSkillMatchPercentage(
-              r.matched_skills,
-              requiredSkills,
-            );
+      <div className="mt-6 space-y-4">
+        {results.map((r) => (
+          <div
+            key={r.resume_id}
+            onClick={() => handleSelect(r)}
+            className="p-4 border rounded cursor-pointer"
+          >
+            <h3 className="font-bold">Resume {r.resume_id}</h3>
 
-            return (
-              <div
-                key={r.resume_id}
-                onClick={() => handleSelectCandidate(r)}
-                className={`cursor-pointer p-5 rounded-2xl shadow transition hover:scale-[1.02] ${getCardStyle(
-                  index,
-                )}`}
-              >
-                <div className="flex items-center">
-                  <p className="font-bold text-xl text-black dark:text-white">
-                    {r.metadata?.name || `Resume ${r.resume_id}`}
-                  </p>
-                  {getBadge(index)}
-                </div>
+            <p>Score: {r.score?.toFixed(3)}</p>
 
-                <p className="mt-2 text-black dark:text-gray-200">
-                  <strong>Score:</strong>{" "}
-                  {typeof r.score === "number" ? r.score.toFixed(3) : "N/A"}
-                </p>
+            <p>
+              Skills:{" "}
+              {Array.isArray(r.skills) && r.skills.length > 0
+                ? r.skills.join(", ")
+                : "None"}
+            </p>
 
-                <p className="mt-1 text-black dark:text-gray-200">
-                  <strong>Skill Match:</strong> {percent}%
-                </p>
-
-                <div className="w-full bg-gray-300 rounded-full h-2 mt-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-
-                <p className="mt-2 text-black dark:text-gray-200">
-                  <strong>Skills:</strong>{" "}
-                  {r.matched_skills?.length > 0
-                    ? r.matched_skills.join(", ")
-                    : "None"}
-                </p>
-
-                <p className="mt-1 text-black dark:text-gray-200">
-                  <strong>Email:</strong> {r.metadata?.email || "N/A"}
-                </p>
-
-                <div className="mt-4 inline-block px-3 py-1 rounded-lg bg-green-500 text-white text-sm font-semibold">
-                  View Details
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+            <p>Email: {r.email || "N/A"}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
