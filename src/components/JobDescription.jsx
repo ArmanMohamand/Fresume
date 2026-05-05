@@ -1,3 +1,403 @@
+// import React, { useState, useEffect } from "react";
+// import { jwtDecode } from "jwt-decode";
+
+// function Popup({ message, onClose }) {
+//   useEffect(() => {
+//     if (message) {
+//       const timer = setTimeout(() => {
+//         onClose();
+//       }, 3000);
+
+//       return () => clearTimeout(timer);
+//     }
+//   }, [message, onClose]);
+
+//   if (!message) return null;
+
+//   return (
+//     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+//       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm w-full">
+//         <p className="text-gray-800 dark:text-gray-200 mb-4">
+//           {message}
+//         </p>
+
+//         <button
+//           onClick={onClose}
+//           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+//         >
+//           OK
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function JobDescription({
+//   setJobDesc,
+//   setRequiredSkills,
+// }) {
+//   const [desc, setDesc] = useState("");
+//   const [skills, setSkills] = useState("");
+//   const [endTime, setEndTime] = useState("");
+//   const [savedEntries, setSavedEntries] = useState([]);
+//   const [editIndex, setEditIndex] = useState(null);
+//   const [popupMessage, setPopupMessage] = useState("");
+//   const [isAdmin, setIsAdmin] = useState(false);
+
+//   // ---------------- CHECK ADMIN ----------------
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+
+//     if (token) {
+//       try {
+//         const decoded = jwtDecode(token);
+
+//         console.log("Decoded JWT:", decoded);
+
+//         setIsAdmin(decoded.role === "admin");
+//       } catch (err) {
+//         console.error("JWT Decode Error:", err);
+//       }
+//     }
+//   }, []);
+
+//   // ---------------- SAVE ----------------
+//   const handleSave = async () => {
+//     if (!isAdmin) {
+//       setPopupMessage(
+//         "Only admins can add job descriptions",
+//       );
+//       return;
+//     }
+
+//     const token = localStorage.getItem("token");
+
+//     try {
+//       const res = await fetch(
+//         "https://bresume.onrender.com/jobdesc/save",
+        
+//         {
+//           method: "POST",
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify({
+//             desc,
+//             skills,
+//             endTime,
+//           }),
+//         },
+//       );
+
+//       const data = await res.json();
+
+//       if (!res.ok) {
+//         setPopupMessage(
+//           data.error || "Failed to save",
+//         );
+//         return;
+//       }
+
+//       const newEntry = {
+//         desc,
+//         skills: skills
+//           .split(",")
+//           .map((s) => s.trim()),
+//         timestamp: new Date().toLocaleString(),
+//         endTime: endTime
+//           ? new Date(endTime).getTime()
+//           : null,
+//       };
+
+//       if (editIndex !== null) {
+//         const updated = [...savedEntries];
+
+//         updated[editIndex] = newEntry;
+
+//         setSavedEntries(updated);
+
+//         setEditIndex(null);
+//       } else {
+//         setSavedEntries([
+//           newEntry,
+//           ...savedEntries,
+//         ]);
+//       }
+
+//       setJobDesc(desc);
+
+//       setRequiredSkills(
+//         skills
+//           .split(",")
+//           .map((s) => s.trim()),
+//       );
+
+//       localStorage.setItem("jobDesc", desc);
+
+//       localStorage.setItem(
+//         "requiredSkills",
+//         JSON.stringify(
+//           skills
+//             .split(",")
+//             .map((s) => s.trim()),
+//         ),
+//       );
+
+//       setPopupMessage(
+//         data.message || "Saved successfully",
+//       );
+
+//       setDesc("");
+//       setSkills("");
+//       setEndTime("");
+//     } catch (err) {
+//       console.error(err);
+
+//       setPopupMessage("Something went wrong");
+//     }
+//   };
+
+//   // ---------------- DELETE ----------------
+//   const handleDelete = async (index) => {
+//     if (!isAdmin) {
+//       setPopupMessage(
+//         "Only admins can delete job descriptions",
+//       );
+//       return;
+//     }
+
+//     const token = localStorage.getItem("token");
+
+//     try {
+//       const res = await fetch(
+//         `https://bresume.onrender.com/jobdesc/delete/${index}`,
+//         {
+//           method: "DELETE",
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         },
+//       );
+
+//       const data = await res.json();
+
+//       if (!res.ok) {
+//         setPopupMessage(
+//           data.error || "Delete failed",
+//         );
+//         return;
+//       }
+
+//       setSavedEntries(
+//         savedEntries.filter(
+//           (_, i) => i !== index,
+//         ),
+//       );
+
+//       setPopupMessage(
+//         data.message || "Deleted successfully",
+//       );
+//     } catch (err) {
+//       console.error(err);
+
+//       setPopupMessage("Something went wrong");
+//     }
+//   };
+
+//   // ---------------- EDIT ----------------
+//   const handleEdit = (index) => {
+//     const entry = savedEntries[index];
+
+//     setDesc(entry.desc);
+
+//     setSkills(entry.skills.join(", "));
+
+//     setEndTime(
+//       entry.endTime
+//         ? new Date(entry.endTime)
+//             .toISOString()
+//             .slice(0, 16)
+//         : "",
+//     );
+
+//     setEditIndex(index);
+//   };
+
+//   // ---------------- AUTO REMOVE EXPIRED ----------------
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       const now = Date.now();
+
+//       setSavedEntries((entries) =>
+//         entries.filter(
+//           (e) =>
+//             !e.endTime ||
+//             e.endTime > now,
+//         ),
+//       );
+//     }, 60000);
+
+//     return () => clearInterval(interval);
+//   }, []);
+
+//   return (
+//     <div className="p-6">
+//       <h2 className="text-2xl font-bold mb-4">
+//         Job Description
+//       </h2>
+
+//       {/* ---------------- TEXTAREA ---------------- */}
+//       <textarea
+//         placeholder="Paste job description..."
+//         value={desc}
+//         onChange={(e) =>
+//           setDesc(e.target.value)
+//         }
+//         className="w-full p-3 border rounded mb-4 text-white"
+//         rows={6}
+//       />
+
+//       {/* ---------------- SKILLS ---------------- */}
+//       <input
+//         type="text"
+//         placeholder="Required skills (comma separated)"
+//         value={skills}
+//         onChange={(e) =>
+//           setSkills(e.target.value)
+//         }
+//         className="w-full p-3 border rounded mb-4 text-white"
+//       />
+
+//       {/* ---------------- END TIME ---------------- */}
+//       <input
+//         type="datetime-local"
+//         value={endTime}
+//         onChange={(e) =>
+//           setEndTime(e.target.value)
+//         }
+//         className="w-full p-3 border rounded mb-4 text-white"
+//       />
+
+//       {/* ---------------- SAVE BUTTON ---------------- */}
+//       {isAdmin && (
+//         <button
+//           onClick={handleSave}
+//           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+//         >
+//           {editIndex !== null
+//             ? "Update"
+//             : "Save"}
+//         </button>
+//       )}
+
+//       {/* ---------------- NON ADMIN MESSAGE ---------------- */}
+//       {!isAdmin && (
+//         <p className="text-red-500 font-medium">
+//           Only admins can add/edit/delete
+//           job descriptions.
+//         </p>
+//       )}
+
+//       {/* ---------------- SAVED ENTRIES ---------------- */}
+//       {savedEntries.length > 0 && (
+//         <div className="mt-6 space-y-4">
+//           {savedEntries.map(
+//             (entry, idx) => {
+//               const isLatest =
+//                 idx === 0;
+
+//               return (
+//                 <div
+//                   key={idx}
+//                   className={`p-4 border rounded ${
+//                     isLatest
+//                       ? "border-green-500 bg-green-50 dark:bg-green-900"
+//                       : "bg-gray-50 dark:bg-gray-800"
+//                   }`}
+//                 >
+//                   <h3 className="text-lg font-semibold mb-2">
+//                     Saved Job
+//                     Description{" "}
+//                     {isLatest &&
+//                       "(Latest)"}
+//                   </h3>
+
+//                   <p className="mb-2">
+//                     {entry.desc}
+//                   </p>
+
+//                   <h4 className="font-semibold">
+//                     Required Skills:
+//                   </h4>
+
+//                   <ul className="list-disc list-inside mb-2">
+//                     {entry.skills.map(
+//                       (skill, i) => (
+//                         <li key={i}>
+//                           {skill}
+//                         </li>
+//                       ),
+//                     )}
+//                   </ul>
+
+//                   <p className="text-sm text-gray-600 mb-1">
+//                     Saved at:{" "}
+//                     {entry.timestamp}
+//                   </p>
+
+//                   {entry.endTime && (
+//                     <p className="text-sm text-red-600 mb-2">
+//                       Expires at:{" "}
+//                       {new Date(
+//                         entry.endTime,
+//                       ).toLocaleString()}
+//                     </p>
+//                   )}
+
+//                   {/* ---------------- ADMIN BUTTONS ---------------- */}
+//                   {isAdmin && (
+//                     <div className="flex gap-2">
+//                       <button
+//                         onClick={() =>
+//                           handleEdit(idx)
+//                         }
+//                         className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+//                       >
+//                         Edit
+//                       </button>
+
+//                       <button
+//                         onClick={() =>
+//                           handleDelete(idx)
+//                         }
+//                         className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+//                       >
+//                         Delete
+//                       </button>
+//                     </div>
+//                   )}
+//                 </div>
+//               );
+//             },
+//           )}
+//         </div>
+//       )}
+
+//       {/* ---------------- POPUP ---------------- */}
+//       <Popup
+//         message={popupMessage}
+//         onClose={() =>
+//           setPopupMessage("")
+//         }
+//       />
+//     </div>
+//   );
+// }
+
+// export default JobDescription;
+
+
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
@@ -7,7 +407,6 @@ function Popup({ message, onClose }) {
       const timer = setTimeout(() => {
         onClose();
       }, 3000);
-
       return () => clearTimeout(timer);
     }
   }, [message, onClose]);
@@ -17,13 +416,10 @@ function Popup({ message, onClose }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <p className="text-gray-800 dark:text-gray-200 mb-4">
-          {message}
-        </p>
-
+        <p className="text-gray-800 dark:text-gray-200 mb-4">{message}</p>
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           OK
         </button>
@@ -32,365 +428,200 @@ function Popup({ message, onClose }) {
   );
 }
 
-function JobDescription({
-  setJobDesc,
-  setRequiredSkills,
-}) {
+function JobDescription({ setJobDesc, setRequiredSkills }) {
   const [desc, setDesc] = useState("");
   const [skills, setSkills] = useState("");
   const [endTime, setEndTime] = useState("");
   const [savedEntries, setSavedEntries] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
   const [popupMessage, setPopupMessage] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ---------------- CHECK ADMIN ----------------
+  const API_URL = "https://bresume.onrender.com";
+
+  // ✅ CHECK ADMIN
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      try {
-        const decoded = jwtDecode(token);
-
-        console.log("Decoded JWT:", decoded);
-
-        setIsAdmin(decoded.role === "admin");
-      } catch (err) {
-        console.error("JWT Decode Error:", err);
-      }
+      const decoded = jwtDecode(token);
+      setIsAdmin(decoded.role === "admin");
     }
   }, []);
 
-  // ---------------- SAVE ----------------
+  // ✅ FETCH JOBS FROM BACKEND (IMPORTANT)
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const token = localStorage.getItem("token");
+
+      try {
+        const res = await fetch(`${API_URL}/jobdesc/list`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setSavedEntries(data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  // ✅ SAVE
   const handleSave = async () => {
     if (!isAdmin) {
-      setPopupMessage(
-        "Only admins can add job descriptions",
-      );
+      setPopupMessage("Only admins can add job descriptions");
       return;
     }
 
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(
-        "https://bresume.onrender.com/jobdesc/save",
-        
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            desc,
-            skills,
-            endTime,
-          }),
+      const res = await fetch(`${API_URL}/jobdesc/save`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          desc,
+          skills: skills.split(",").map((s) => s.trim()),
+          endTime,
+        }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setPopupMessage(
-          data.error || "Failed to save",
-        );
+        setPopupMessage(data.error);
         return;
       }
 
-      const newEntry = {
-        desc,
-        skills: skills
-          .split(",")
-          .map((s) => s.trim()),
-        timestamp: new Date().toLocaleString(),
-        endTime: endTime
-          ? new Date(endTime).getTime()
-          : null,
-      };
-
-      if (editIndex !== null) {
-        const updated = [...savedEntries];
-
-        updated[editIndex] = newEntry;
-
-        setSavedEntries(updated);
-
-        setEditIndex(null);
-      } else {
-        setSavedEntries([
-          newEntry,
-          ...savedEntries,
-        ]);
-      }
+      // ✅ ADD NEW JOB FROM BACKEND RESPONSE
+      setSavedEntries((prev) => [data.job, ...prev]);
 
       setJobDesc(desc);
-
-      setRequiredSkills(
-        skills
-          .split(",")
-          .map((s) => s.trim()),
-      );
+      setRequiredSkills(skills.split(",").map((s) => s.trim()));
 
       localStorage.setItem("jobDesc", desc);
-
       localStorage.setItem(
         "requiredSkills",
-        JSON.stringify(
-          skills
-            .split(",")
-            .map((s) => s.trim()),
-        ),
+        JSON.stringify(skills.split(",").map((s) => s.trim()))
       );
 
-      setPopupMessage(
-        data.message || "Saved successfully",
-      );
+      setPopupMessage("Saved successfully");
 
       setDesc("");
       setSkills("");
       setEndTime("");
     } catch (err) {
-      console.error(err);
-
       setPopupMessage("Something went wrong");
     }
   };
 
-  // ---------------- DELETE ----------------
-  const handleDelete = async (index) => {
-    if (!isAdmin) {
-      setPopupMessage(
-        "Only admins can delete job descriptions",
-      );
-      return;
-    }
-
+  // ✅ DELETE (FIXED USING _id)
+  const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(
-        `https://bresume.onrender.com/jobdesc/delete/${index}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API_URL}/jobdesc/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setPopupMessage(
-          data.error || "Delete failed",
-        );
+        setPopupMessage(data.error);
         return;
       }
 
-      setSavedEntries(
-        savedEntries.filter(
-          (_, i) => i !== index,
-        ),
-      );
+      setSavedEntries((prev) => prev.filter((j) => j._id !== id));
 
-      setPopupMessage(
-        data.message || "Deleted successfully",
-      );
+      setPopupMessage("Deleted successfully");
     } catch (err) {
-      console.error(err);
-
-      setPopupMessage("Something went wrong");
+      setPopupMessage("Delete failed");
     }
   };
 
-  // ---------------- EDIT ----------------
-  const handleEdit = (index) => {
-    const entry = savedEntries[index];
-
-    setDesc(entry.desc);
-
-    setSkills(entry.skills.join(", "));
-
-    setEndTime(
-      entry.endTime
-        ? new Date(entry.endTime)
-            .toISOString()
-            .slice(0, 16)
-        : "",
-    );
-
-    setEditIndex(index);
-  };
-
-  // ---------------- AUTO REMOVE EXPIRED ----------------
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-
-      setSavedEntries((entries) =>
-        entries.filter(
-          (e) =>
-            !e.endTime ||
-            e.endTime > now,
-        ),
-      );
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">
-        Job Description
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">Job Description</h2>
 
-      {/* ---------------- TEXTAREA ---------------- */}
+      {/* INPUTS */}
       <textarea
         placeholder="Paste job description..."
         value={desc}
-        onChange={(e) =>
-          setDesc(e.target.value)
-        }
+        onChange={(e) => setDesc(e.target.value)}
         className="w-full p-3 border rounded mb-4 text-white"
-        rows={6}
       />
 
-      {/* ---------------- SKILLS ---------------- */}
       <input
         type="text"
-        placeholder="Required skills (comma separated)"
+        placeholder="Skills (comma separated)"
         value={skills}
-        onChange={(e) =>
-          setSkills(e.target.value)
-        }
+        onChange={(e) => setSkills(e.target.value)}
         className="w-full p-3 border rounded mb-4 text-white"
       />
 
-      {/* ---------------- END TIME ---------------- */}
       <input
         type="datetime-local"
         value={endTime}
-        onChange={(e) =>
-          setEndTime(e.target.value)
-        }
+        onChange={(e) => setEndTime(e.target.value)}
         className="w-full p-3 border rounded mb-4 text-white"
       />
 
-      {/* ---------------- SAVE BUTTON ---------------- */}
+      {/* ADMIN BUTTON */}
       {isAdmin && (
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 text-white rounded"
         >
-          {editIndex !== null
-            ? "Update"
-            : "Save"}
+          Save
         </button>
       )}
 
-      {/* ---------------- NON ADMIN MESSAGE ---------------- */}
       {!isAdmin && (
-        <p className="text-red-500 font-medium">
-          Only admins can add/edit/delete
-          job descriptions.
+        <p className="text-red-500 mt-2">
+          Only admins can add/edit/delete job descriptions.
         </p>
       )}
 
-      {/* ---------------- SAVED ENTRIES ---------------- */}
-      {savedEntries.length > 0 && (
-        <div className="mt-6 space-y-4">
-          {savedEntries.map(
-            (entry, idx) => {
-              const isLatest =
-                idx === 0;
+      {/* JOB LIST */}
+      <div className="mt-6 space-y-4">
+        {savedEntries.map((entry) => (
+          <div key={entry._id} className="p-4 border rounded">
+            <p>{entry.desc}</p>
 
-              return (
-                <div
-                  key={idx}
-                  className={`p-4 border rounded ${
-                    isLatest
-                      ? "border-green-500 bg-green-50 dark:bg-green-900"
-                      : "bg-gray-50 dark:bg-gray-800"
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold mb-2">
-                    Saved Job
-                    Description{" "}
-                    {isLatest &&
-                      "(Latest)"}
-                  </h3>
+            <p className="text-sm mt-2">
+              Skills: {entry.skills?.join(", ")}
+            </p>
 
-                  <p className="mb-2">
-                    {entry.desc}
-                  </p>
+            {entry.endTime && (
+              <p className="text-sm text-red-400">
+                Expires: {new Date(entry.endTime).toLocaleString()}
+              </p>
+            )}
 
-                  <h4 className="font-semibold">
-                    Required Skills:
-                  </h4>
+            {/* DELETE BUTTON */}
+            {isAdmin && (
+              <button
+                onClick={() => handleDelete(entry._id)}
+                className="mt-2 px-3 py-1 bg-red-500 text-white rounded"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
 
-                  <ul className="list-disc list-inside mb-2">
-                    {entry.skills.map(
-                      (skill, i) => (
-                        <li key={i}>
-                          {skill}
-                        </li>
-                      ),
-                    )}
-                  </ul>
-
-                  <p className="text-sm text-gray-600 mb-1">
-                    Saved at:{" "}
-                    {entry.timestamp}
-                  </p>
-
-                  {entry.endTime && (
-                    <p className="text-sm text-red-600 mb-2">
-                      Expires at:{" "}
-                      {new Date(
-                        entry.endTime,
-                      ).toLocaleString()}
-                    </p>
-                  )}
-
-                  {/* ---------------- ADMIN BUTTONS ---------------- */}
-                  {isAdmin && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          handleEdit(idx)
-                        }
-                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          handleDelete(idx)
-                        }
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            },
-          )}
-        </div>
-      )}
-
-      {/* ---------------- POPUP ---------------- */}
-      <Popup
-        message={popupMessage}
-        onClose={() =>
-          setPopupMessage("")
-        }
-      />
+      <Popup message={popupMessage} onClose={() => setPopupMessage("")} />
     </div>
   );
 }
