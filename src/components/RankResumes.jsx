@@ -511,6 +511,23 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
   const navigate = useNavigate();
 
+  // ---------------- NORMALIZE ----------------
+  const normalize = (arr) =>
+    (arr || []).map((s) => s.toLowerCase().trim()).filter(Boolean);
+
+  // ---------------- SKILL MATCH % ----------------
+  const getSkillMatchPercentage = (candidateSkills = [], required = []) => {
+    const cSkills = normalize(candidateSkills);
+    const rSkills = normalize(required);
+
+    if (rSkills.length === 0) return 0;
+
+    const matched = rSkills.filter((s) => cSkills.includes(s)).length;
+
+    return Math.round((matched / rSkills.length) * 100);
+  };
+
+  // ---------------- RANK API ----------------
   const handleRank = async () => {
     const token = localStorage.getItem("token");
 
@@ -543,38 +560,87 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
     }
   };
 
+  // ---------------- SELECT CANDIDATE ----------------
   const handleSelect = (candidate) => {
     setSelectedCandidate(candidate);
     navigate("/analytics");
   };
 
+  // ---------------- BADGES ----------------
+  const getBadge = (index) => {
+    if (index === 0) return "🏆 Best";
+    if (index === 1) return "🥈 2nd";
+    if (index === 2) return "🥉 3rd";
+    return "";
+  };
+
+  const getColor = (index) => {
+    if (index === 0) return "border-yellow-400 bg-yellow-50 dark:bg-yellow-900";
+    if (index === 1) return "border-gray-400 bg-gray-100 dark:bg-gray-800";
+    if (index === 2) return "border-orange-400 bg-orange-50 dark:bg-orange-900";
+    return "bg-white dark:bg-gray-800";
+  };
+
   return (
     <div className="p-6 text-white">
-      <button onClick={handleRank} className="bg-blue-500 px-4 py-2 rounded">
+      <h2 className="text-3xl font-bold mb-4">Rank Resumes</h2>
+
+      <button
+        onClick={handleRank}
+        disabled={loading}
+        className="bg-blue-500 px-4 py-2 rounded"
+      >
         {loading ? "Ranking..." : "Rank"}
       </button>
 
+      {/* RESULTS */}
       <div className="mt-6 space-y-4">
-        {results.map((r) => (
-          <div
-            key={r.resume_id}
-            onClick={() => handleSelect(r)}
-            className="p-4 border rounded cursor-pointer"
-          >
-            <h3 className="font-bold">Resume {r.resume_id}</h3>
+        {results.map((r, index) => {
+          const skills = r.skills || r.matched_skills || [];
+          const percent = getSkillMatchPercentage(skills, requiredSkills);
 
-            <p>Score: {r.score?.toFixed(3)}</p>
+          return (
+            <div
+              key={r.resume_id}
+              onClick={() => handleSelect(r)}
+              className={`p-4 border rounded cursor-pointer transition ${getColor(index)}`}
+            >
+              {/* HEADER */}
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold">Resume {r.resume_id}</h3>
+                {getBadge(index) && (
+                  <span className="text-xs bg-black text-white px-2 py-1 rounded">
+                    {getBadge(index)}
+                  </span>
+                )}
+              </div>
 
-            <p>
-              Skills:{" "}
-              {Array.isArray(r.skills) && r.skills.length > 0
-                ? r.skills.join(", ")
-                : "None"}
-            </p>
+              {/* SCORE */}
+              <p className="mt-2">
+                Score:{" "}
+                {typeof r.score === "number" ? r.score.toFixed(3) : "0.000"}
+              </p>
 
-            <p>Email: {r.email || "N/A"}</p>
-          </div>
-        ))}
+              {/* SKILL MATCH BAR */}
+              <div className="w-full bg-gray-600 rounded-full h-2 mt-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+
+              <p className="text-sm mt-1">Skill Match: {percent}%</p>
+
+              {/* SKILLS */}
+              <p className="mt-2">
+                Skills: {skills.length > 0 ? skills.join(", ") : "None"}
+              </p>
+
+              {/* EMAIL */}
+              <p>Email: {r.email || r.metadata?.email || "N/A"}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
