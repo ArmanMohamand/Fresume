@@ -529,7 +529,7 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
 );
 
 function Analytics() {
@@ -555,23 +555,19 @@ function Analytics() {
   };
 
   const barData = {
-    labels: ["Score", "TF-IDF", "Skill Score"],
+    labels: ["Score"],
     datasets: [
       {
         label: "Performance",
-        data: [
-          candidate.score || 0,
-          candidate.tfidf_score || 0,
-          candidate.skill_score || 0,
-        ],
-        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"],
+        data: [candidate.score || 0],
+        backgroundColor: ["#3b82f6"],
       },
     ],
   };
 
   return (
     <div className="p-6 text-white">
-      <h2 className="text-2xl font-bold mb-4">Candidate Profile</h2>
+      <h2 className="text-2xl font-bold mb-4">Contact Details </h2>
 
       <div className="mb-4">
         <p>Name: N/A</p>
