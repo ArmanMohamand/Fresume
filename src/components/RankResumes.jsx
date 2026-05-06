@@ -740,11 +740,11 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
     const c = normalize(candidateSkills);
     const r = normalize(required);
 
-    if (r.length === 0) return 0;
+    if (!r.length) return 0;
 
-    const matched = r.filter((s) => c.includes(s)).length;
+    const match = r.filter((s) => c.includes(s)).length;
 
-    return Math.round((matched / r.length) * 100);
+    return Math.round((match / r.length) * 100);
   };
 
   // ---------------- RANK API ----------------
@@ -762,7 +762,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       setResults(res.data.ranked || []);
@@ -781,12 +781,13 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
   return (
     <div className="p-6 text-white">
-
       {/* ================= TOP INFO BOX ================= */}
       <div className="mb-6 p-4 rounded-xl bg-blue-500/20 border border-blue-400">
-        <h2 className="text-xl font-bold mb-2">📌 How to Use This Page</h2>
+        <h2 className="text-xl font-bold mb-2"> How to Use This Page</h2>
 
-        <p>1️⃣ Click <b>Rank Button</b> to generate ranked candidates</p>
+        <p>
+          1️⃣ Click <b>Rank Button</b> to generate ranked candidates
+        </p>
 
         <p className="mt-1">
           2️⃣ After ranking, click any <b>candidate card</b> to open Analytics
@@ -816,16 +817,13 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
               onClick={() => handleSelect(r)}
               className="p-5 border rounded-xl bg-gray-800 cursor-pointer hover:scale-[1.02] transition"
             >
-
               {/* 🏆 BADGES */}
               {i === 0 && <p>🏆 Best Candidate</p>}
               {i === 1 && <p>🥈 2nd Best</p>}
               {i === 2 && <p>🥉 3rd Best</p>}
 
               {/* NAME */}
-              <h3 className="font-bold text-lg mt-1">
-                Resume {r.resume_id}
-              </h3>
+              <h3 className="font-bold text-lg mt-1">Resume {r.resume_id}</h3>
 
               {/* SCORE */}
               <p className="mt-1">
@@ -840,14 +838,10 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
                 />
               </div>
 
-              <p className="text-sm mt-1">
-                Skill Match: {percent}%
-              </p>
+              <p className="text-sm mt-1">Skill Match: {percent}%</p>
 
               {/* SKILLS */}
-              <p className="mt-2">
-                Skills: {r.skills?.join(", ") || "None"}
-              </p>
+              <p className="mt-2">Skills: {r.skills?.join(", ") || "None"}</p>
 
               {/* EMAIL */}
               <p>Email: {r.email || "N/A"}</p>

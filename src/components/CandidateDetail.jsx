@@ -69,6 +69,7 @@
 // }
 
 // export default CandidateDetail;
+
 import React from "react";
 
 function CandidateDetail({ candidate }) {
@@ -188,9 +189,7 @@ function CandidateDetail({ candidate }) {
         {/* ✅ SKILLS */}
         <p>
           <strong>Skills:</strong>{" "}
-          {candidate.matched_skills?.length > 0
-            ? candidate.matched_skills.join(", ")
-            : "None"}
+          {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
         </p>
 
         {/* ✅ OPTIONAL KEYWORDS (if backend sends later) */}
