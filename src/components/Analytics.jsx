@@ -509,6 +509,95 @@
 
 // export default Analytics;
 
+// import React from "react";
+// import { Pie, Bar } from "react-chartjs-2";
+// import { useLocation } from "react-router-dom";
+
+// import {
+//   Chart as ChartJS,
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+// } from "chart.js";
+
+// ChartJS.register(
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+// );
+
+// function Analytics() {
+//   const location = useLocation();
+//   const candidate = location.state?.candidate;
+
+//   if (!candidate) {
+//     return <p className="p-6 text-white">Select candidate first</p>;
+//   }
+
+//   const skills = candidate.skills || [];
+
+//   const pieData = {
+//     labels: skills.length ? skills : ["No Skills Found"],
+//     datasets: [
+//       {
+//         data: skills.length ? skills.map(() => 1) : [1],
+//         backgroundColor: skills.length
+//           ? skills.map((_, i) => `hsl(${(i * 360) / skills.length},70%,55%)`)
+//           : ["#9ca3af"],
+//       },
+//     ],
+//   };
+
+//   const barData = {
+//     labels: ["Score"],
+//     datasets: [
+//       {
+//         label: "Performance",
+//         data: [candidate.score || 0],
+//         backgroundColor: ["#3b82f6"],
+//       },
+//     ],
+//   };
+
+//   return (
+//     <div className="p-6 text-white">
+//       <h2 className="text-2xl font-bold mb-4">Contact Details </h2>
+
+//       <div className="mb-4">
+//         <p>Name: N/A</p>
+
+//         <p>Email: {candidate.email || "N/A"}</p>
+//         <p>Phone: {candidate.phone || "N/A"}</p>
+
+//         <p className="mt-2 font-bold">
+//           Score: {candidate.score?.toFixed(3) || "0.000"}
+//         </p>
+
+//         <p className="mt-2">
+//           <strong>Skills:</strong>{" "}
+//           {skills.length > 0 ? skills.join(", ") : "None"}
+//         </p>
+//       </div>
+
+//       <div className="w-[320px] mx-auto">
+//         <Pie data={pieData} />
+//       </div>
+
+//       <div className="w-[420px] mt-8 mx-auto">
+//         <Bar data={barData} />
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Analytics;
+
 import React from "react";
 import { Pie, Bar } from "react-chartjs-2";
 import { useLocation } from "react-router-dom";
@@ -541,7 +630,9 @@ function Analytics() {
   }
 
   const skills = candidate.skills || [];
+  const metadata = candidate.metadata || {};
 
+  // ---------------- PIE ----------------
   const pieData = {
     labels: skills.length ? skills : ["No Skills Found"],
     datasets: [
@@ -554,6 +645,7 @@ function Analytics() {
     ],
   };
 
+  // ---------------- BAR ----------------
   const barData = {
     labels: ["Score"],
     datasets: [
@@ -567,28 +659,38 @@ function Analytics() {
 
   return (
     <div className="p-6 text-white">
-      <h2 className="text-2xl font-bold mb-4">Contact Details </h2>
+      <h2 className="text-2xl font-bold mb-4">Contact Details</h2>
 
-      <div className="mb-4">
-        <p>Name: N/A</p>
+      {/* ✅ ONLY CONTACT INFO */}
+      <div className="mb-4 space-y-2">
+        <p>
+          <strong>Name:</strong> {metadata.name || "N/A"}
+        </p>
 
-        <p>Email: {candidate.email || "N/A"}</p>
-        <p>Phone: {candidate.phone || "N/A"}</p>
+        <p>
+          <strong>Email:</strong> {candidate.email || "N/A"}
+        </p>
+
+        <p>
+          <strong>Phone:</strong> {candidate.phone || "N/A"}
+        </p>
 
         <p className="mt-2 font-bold">
           Score: {candidate.score?.toFixed(3) || "0.000"}
         </p>
 
-        <p className="mt-2">
+        <p>
           <strong>Skills:</strong>{" "}
           {skills.length > 0 ? skills.join(", ") : "None"}
         </p>
       </div>
 
+      {/* PIE */}
       <div className="w-[320px] mx-auto">
         <Pie data={pieData} />
       </div>
 
+      {/* BAR */}
       <div className="w-[420px] mt-8 mx-auto">
         <Bar data={barData} />
       </div>
