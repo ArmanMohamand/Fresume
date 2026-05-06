@@ -70,6 +70,141 @@
 
 // export default CandidateDetail;
 
+// import React from "react";
+
+// function CandidateDetail({ candidate }) {
+//   if (!candidate) {
+//     return <div className="p-6 text-gray-500">Select candidate</div>;
+//   }
+
+//   const m = candidate.metadata || {};
+
+//   // ✅ Fix GitHub / LinkedIn URLs (handles usernames like "arman123")
+//   const formatUrl = (url, base) => {
+//     if (!url) return null;
+
+//     if (url.startsWith("http")) return url;
+
+//     // If only username → convert to full URL
+//     return `${base}/${url.replace(/^@/, "")}`;
+//   };
+
+//   const githubUrl = formatUrl(m.github, "https://github.com");
+//   const linkedinUrl = formatUrl(m.linkedin, "https://linkedin.com/in");
+
+//   return (
+//     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow">
+//       {/* TITLE */}
+//       <h2 className="text-2xl font-bold mb-4 text-center">Candidate Profile</h2>
+
+//       <div className="space-y-2 text-gray-700 dark:text-gray-300">
+//         <p>
+//           <strong>Resume ID:</strong> {candidate.resume_id}
+//         </p>
+
+//         <p>
+//           <strong>Name:</strong> {m.name || "N/A"}
+//         </p>
+
+//         <p>
+//           <strong>Email:</strong> {m.email || "N/A"}
+//         </p>
+
+//         <p>
+//           <strong>Phone:</strong> {m.phone || "N/A"}
+//         </p>
+
+//         {/* ✅ GitHub FIXED */}
+//         <p>
+//           <strong>GitHub:</strong>{" "}
+//           {githubUrl ? (
+//             <a
+//               href={githubUrl}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="text-blue-500 hover:underline"
+//             >
+//               View Profile
+//             </a>
+//           ) : (
+//             "N/A"
+//           )}
+//         </p>
+
+//         {/* ✅ LinkedIn FIXED */}
+//         <p>
+//           <strong>LinkedIn:</strong>{" "}
+//           {linkedinUrl ? (
+//             <a
+//               href={linkedinUrl}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="text-blue-500 hover:underline"
+//             >
+//               View Profile
+//             </a>
+//           ) : (
+//             "N/A"
+//           )}
+//         </p>
+
+//         {/* ✅ PROJECTS */}
+//         <div>
+//           <strong>Projects:</strong>
+//           {m.projects?.length > 0 ? (
+//             <ul className="list-disc list-inside">
+//               {m.projects.map((proj, idx) => (
+//                 <li key={idx}>
+//                   {proj}
+//                   {m.project_links?.[idx] && (
+//                     <>
+//                       {" "}
+//                       —{" "}
+//                       <a
+//                         href={m.project_links[idx]}
+//                         target="_blank"
+//                         rel="noopener noreferrer"
+//                         className="text-blue-500 hover:underline"
+//                       >
+//                         View
+//                       </a>
+//                     </>
+//                   )}
+//                 </li>
+//               ))}
+//             </ul>
+//           ) : (
+//             <p>N/A</p>
+//           )}
+//         </div>
+
+//         {/* ✅ SCORE SAFE */}
+//         <p>
+//           <strong>Score:</strong>{" "}
+//           {typeof candidate.score === "number"
+//             ? candidate.score.toFixed(3)
+//             : "N/A"}
+//         </p>
+
+//         {/* ✅ SKILLS */}
+//         <p>
+//           <strong>Skills:</strong>{" "}
+//           {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
+//         </p>
+
+//         {/* ✅ OPTIONAL KEYWORDS (if backend sends later) */}
+//         {candidate.matched_keywords?.length > 0 && (
+//           <p>
+//             <strong>Keywords:</strong> {candidate.matched_keywords.join(", ")}
+//           </p>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default CandidateDetail;
+
 import React from "react";
 
 function CandidateDetail({ candidate }) {
@@ -77,24 +212,18 @@ function CandidateDetail({ candidate }) {
     return <div className="p-6 text-gray-500">Select candidate</div>;
   }
 
-  const m = candidate.metadata || {};
-
-  // ✅ Fix GitHub / LinkedIn URLs (handles usernames like "arman123")
+  // ✅ Use DIRECT fields from backend (NOT metadata)
   const formatUrl = (url, base) => {
     if (!url) return null;
-
     if (url.startsWith("http")) return url;
-
-    // If only username → convert to full URL
     return `${base}/${url.replace(/^@/, "")}`;
   };
 
-  const githubUrl = formatUrl(m.github, "https://github.com");
-  const linkedinUrl = formatUrl(m.linkedin, "https://linkedin.com/in");
+  const githubUrl = formatUrl(candidate.github, "https://github.com");
+  const linkedinUrl = formatUrl(candidate.linkedin, "https://linkedin.com/in");
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow">
-      {/* TITLE */}
       <h2 className="text-2xl font-bold mb-4 text-center">Candidate Profile</h2>
 
       <div className="space-y-2 text-gray-700 dark:text-gray-300">
@@ -102,19 +231,17 @@ function CandidateDetail({ candidate }) {
           <strong>Resume ID:</strong> {candidate.resume_id}
         </p>
 
+        {/* ❌ NAME REMOVED (not available yet) */}
+
         <p>
-          <strong>Name:</strong> {m.name || "N/A"}
+          <strong>Email:</strong> {candidate.email || "N/A"}
         </p>
 
         <p>
-          <strong>Email:</strong> {m.email || "N/A"}
+          <strong>Phone:</strong> {candidate.phone || "N/A"}
         </p>
 
-        <p>
-          <strong>Phone:</strong> {m.phone || "N/A"}
-        </p>
-
-        {/* ✅ GitHub FIXED */}
+        {/* ✅ GitHub */}
         <p>
           <strong>GitHub:</strong>{" "}
           {githubUrl ? (
@@ -131,7 +258,7 @@ function CandidateDetail({ candidate }) {
           )}
         </p>
 
-        {/* ✅ LinkedIn FIXED */}
+        {/* ✅ LinkedIn */}
         <p>
           <strong>LinkedIn:</strong>{" "}
           {linkedinUrl ? (
@@ -148,37 +275,6 @@ function CandidateDetail({ candidate }) {
           )}
         </p>
 
-        {/* ✅ PROJECTS */}
-        <div>
-          <strong>Projects:</strong>
-          {m.projects?.length > 0 ? (
-            <ul className="list-disc list-inside">
-              {m.projects.map((proj, idx) => (
-                <li key={idx}>
-                  {proj}
-                  {m.project_links?.[idx] && (
-                    <>
-                      {" "}
-                      —{" "}
-                      <a
-                        href={m.project_links[idx]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >
-                        View
-                      </a>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>N/A</p>
-          )}
-        </div>
-
-        {/* ✅ SCORE SAFE */}
         <p>
           <strong>Score:</strong>{" "}
           {typeof candidate.score === "number"
@@ -186,18 +282,10 @@ function CandidateDetail({ candidate }) {
             : "N/A"}
         </p>
 
-        {/* ✅ SKILLS */}
         <p>
           <strong>Skills:</strong>{" "}
           {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
         </p>
-
-        {/* ✅ OPTIONAL KEYWORDS (if backend sends later) */}
-        {candidate.matched_keywords?.length > 0 && (
-          <p>
-            <strong>Keywords:</strong> {candidate.matched_keywords.join(", ")}
-          </p>
-        )}
       </div>
     </div>
   );
