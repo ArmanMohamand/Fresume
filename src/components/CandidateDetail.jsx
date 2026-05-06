@@ -205,6 +205,111 @@
 
 // export default CandidateDetail;
 
+// import React from "react";
+
+// function CandidateDetail({ candidate }) {
+//   if (!candidate) {
+//     return <div className="p-6 text-gray-500">Select candidate</div>;
+//   }
+
+//   // ✅ Use DIRECT fields from backend (NOT metadata)
+//   const formatUrl = (url, base) => {
+//     if (!url) return null;
+//     if (url.startsWith("http")) return url;
+//     return `${base}/${url.replace(/^@/, "")}`;
+//   };
+
+//   const githubUrl = formatUrl(candidate.github, "https://github.com");
+//   const linkedinUrl = formatUrl(candidate.linkedin, "https://linkedin.com/in");
+
+//   return (
+//     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow">
+//       <h2 className="text-2xl font-bold mb-4 text-center">Candidate Profile</h2>
+
+//       <div className="space-y-2 text-gray-700 dark:text-gray-300">
+//         <p>
+//           <strong>Resume ID:</strong> {candidate.resume_id}
+//         </p>
+//         {/* ❌ NAME REMOVED (not available yet) */}
+//         <p>
+//           <strong>Email:</strong> {candidate.email || "N/A"}
+//         </p>
+//         <p>
+//           <strong>Phone:</strong> {candidate.phone || "N/A"}
+//         </p>
+//         {/* ✅ GitHub */}
+//         <p>
+//           <strong>GitHub:</strong>{" "}
+//           {githubUrl ? (
+//             <a
+//               href={githubUrl}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="text-blue-500 hover:underline"
+//             >
+//               View Profile
+//             </a>
+//           ) : (
+//             "N/A"
+//           )}
+//         </p>
+//         {/* ✅ LinkedIn */}
+//         <p>
+//           <strong>LinkedIn:</strong>{" "}
+//           {linkedinUrl ? (
+//             <a
+//               href={linkedinUrl}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="text-blue-500 hover:underline"
+//             >
+//               View Profile
+//             </a>
+//           ) : (
+//             "N/A"
+//           )}
+//         </p>
+//         <div>
+//           <strong>Projects:</strong>
+//           {m.projects?.length > 0 ? (
+//             <ul className="list-disc list-inside">
+//               {m.projects.map((proj, idx) => (
+//                 <li key={idx}>
+//                   {proj}
+//                   {m.project_links?.[idx] && (
+//                     <>
+//                       <a
+//                         href={m.project_links[idx]}
+//                         target="_blank"
+//                         rel="noopener noreferrer"
+//                         className="text-blue-500 hover:underline"
+//                       >
+//                         View
+//                       </a>
+//                     </>
+//                   )}
+//                 </li>
+//               ))}
+//             </ul>
+//           ) : (
+//             <p>N/A</p>
+//           )}
+//         </div>
+//         <p>
+//           <strong>Score:</strong>{" "}
+//           {typeof candidate.score === "number" ? candidate.score : "N/A"}
+//         </p>
+//         <p>
+//           <strong>Skills:</strong>{" "}
+//           {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default CandidateDetail;
+
 import React from "react";
 
 function CandidateDetail({ candidate }) {
@@ -212,11 +317,15 @@ function CandidateDetail({ candidate }) {
     return <div className="p-6 text-gray-500">Select candidate</div>;
   }
 
-  // ✅ Use DIRECT fields from backend (NOT metadata)
+  const m = candidate.metadata || {}; // ✅ FIX (important)
+
+  // ✅ URL formatter (handles username + partial links)
   const formatUrl = (url, base) => {
     if (!url) return null;
+
     if (url.startsWith("http")) return url;
-    return `${base}/${url.replace(/^@/, "")}`;
+
+    return `https://${url.replace(/^@/, "")}`;
   };
 
   const githubUrl = formatUrl(candidate.github, "https://github.com");
@@ -224,14 +333,14 @@ function CandidateDetail({ candidate }) {
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">Candidate Profile</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        Candidate Profile
+      </h2>
 
       <div className="space-y-2 text-gray-700 dark:text-gray-300">
         <p>
           <strong>Resume ID:</strong> {candidate.resume_id}
         </p>
-
-        {/* ❌ NAME REMOVED (not available yet) */}
 
         <p>
           <strong>Email:</strong> {candidate.email || "N/A"}
@@ -241,7 +350,7 @@ function CandidateDetail({ candidate }) {
           <strong>Phone:</strong> {candidate.phone || "N/A"}
         </p>
 
-        {/* ✅ GitHub */}
+        {/* ✅ GitHub CLICKABLE */}
         <p>
           <strong>GitHub:</strong>{" "}
           {githubUrl ? (
@@ -251,14 +360,14 @@ function CandidateDetail({ candidate }) {
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline"
             >
-              View Profile
+              {githubUrl}
             </a>
           ) : (
             "N/A"
           )}
         </p>
 
-        {/* ✅ LinkedIn */}
+        {/* ✅ LinkedIn CLICKABLE */}
         <p>
           <strong>LinkedIn:</strong>{" "}
           {linkedinUrl ? (
@@ -268,21 +377,56 @@ function CandidateDetail({ candidate }) {
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline"
             >
-              View Profile
+              {linkedinUrl}
             </a>
           ) : (
             "N/A"
           )}
         </p>
 
+        {/* ✅ PROJECTS WITH NUMBERING + CLICKABLE LINKS */}
+        <div>
+          <strong>Projects:</strong>
+          {m.projects?.length > 0 ? (
+            <ul className="list-disc list-inside mt-2">
+              {m.projects.map((proj, idx) => (
+                <li key={idx}>
+                  {idx + 1}. {proj}
+
+                  {m.project_links?.[idx] && (
+                    <>
+                      {" "}
+                      —{" "}
+                      <a
+                        href={m.project_links[idx]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        View
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>N/A</p>
+          )}
+        </div>
+
         <p>
           <strong>Score:</strong>{" "}
-          {typeof candidate.score === "number" ? candidate.score : "N/A"}
+          {typeof candidate.score === "number"
+            ? candidate.score
+            : "N/A"}
         </p>
 
         <p>
           <strong>Skills:</strong>{" "}
-          {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
+          {candidate.skills?.length > 0
+            ? candidate.skills.join(", ")
+            : "None"}
         </p>
       </div>
     </div>
