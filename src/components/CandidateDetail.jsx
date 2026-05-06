@@ -277,9 +277,7 @@ function CandidateDetail({ candidate }) {
 
         <p>
           <strong>Score:</strong>{" "}
-          {typeof candidate.score === "number"
-            ? candidate.score.toFixed(3)
-            : "N/A"}
+          {typeof candidate.score === "number" ? candidate.score : "N/A"}
         </p>
 
         <p>

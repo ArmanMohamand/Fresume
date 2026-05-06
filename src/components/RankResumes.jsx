@@ -828,7 +828,6 @@
 // }
 
 // export default RankResumes;
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
@@ -852,7 +851,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       setResults(res.data.ranked || []);
@@ -870,6 +869,18 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
   return (
     <div className="p-6 text-white">
+      {/* INFO BOX */}
+      <div className="mb-6 p-4 rounded-xl bg-blue-500/20 border border-blue-400">
+        <h2 className="text-xl font-bold mb-2">How to Use This Page</h2>
+
+        <p>
+          1️⃣ Click <b>Rank Button</b> to generate ranked candidates
+        </p>
+        <p className="mt-1">2️⃣ Click a candidate to open Analytics</p>
+        <p className="mt-1">3️⃣ View charts, score & skills</p>
+      </div>
+
+      {/* BUTTON */}
       <button
         onClick={handleRank}
         className="bg-blue-500 px-5 py-2 rounded font-semibold hover:bg-blue-600"
@@ -877,6 +888,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
         {loading ? "Ranking..." : "Rank Resumes"}
       </button>
 
+      {/* RESULTS */}
       <div className="mt-6 space-y-4">
         {results.map((r, i) => (
           <div
@@ -884,22 +896,20 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
             onClick={() => handleSelect(r)}
             className="p-5 border rounded-xl bg-gray-800 cursor-pointer hover:scale-[1.02] transition"
           >
+            {/* BADGES */}
             {i === 0 && <p>🏆 Best Candidate</p>}
             {i === 1 && <p>🥈 2nd Best</p>}
             {i === 2 && <p>🥉 3rd Best</p>}
 
-            <h3 className="font-bold text-lg mt-1">
-              Resume {r.resume_id}
-            </h3>
+            <h3 className="font-bold text-lg mt-1">Resume {r.resume_id}</h3>
 
-            <p>
-              Score: {r.score ? r.score.toFixed(3) : "0.000"}
-            </p>
+            {/* ✅ FIXED SCORE */}
+            <p>Score: {r.score ?? 0}</p>
 
-            <p className="mt-2">
-              Skills: {r.skills?.join(", ") || "None"}
-            </p>
+            {/* SKILLS */}
+            <p className="mt-2">Skills: {r.skills?.join(", ") || "None"}</p>
 
+            {/* EMAIL */}
             <p>Email: {r.email || "N/A"}</p>
 
             <p className="text-green-400 text-sm mt-2">
