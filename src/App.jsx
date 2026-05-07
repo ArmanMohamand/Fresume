@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
- Route,
+  Route,
   Navigate,
 } from "react-router-dom";
-
+import { Toaster } from "react-hot-toast";
 import UploadResume from "./components/UploadResume";
 import RankResumes from "./components/RankResumes";
 import Analytics from "./components/Analytics";
@@ -20,13 +19,9 @@ import "./index.css";
 function App() {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  const [token, setToken] = useState(
-    localStorage.getItem("token")
-  );
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   const [jobDesc, setJobDesc] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
@@ -50,11 +45,7 @@ function App() {
 
   // ---------------- TOGGLE THEME ----------------
   const toggleTheme = () => {
-    setTheme(
-      theme === "light"
-        ? "dark"
-        : "light"
-    );
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   return (
@@ -63,12 +54,9 @@ function App() {
         <Login setToken={setToken} />
       ) : (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white transition-colors duration-300">
-
           {/* HEADER */}
           <div className="flex justify-between items-center px-6 py-4">
-            <h1 className="text-2xl font-bold">
-              Resume Screening Dashboard
-            </h1>
+            <h1 className="text-2xl font-bold">Resume Screening Dashboard</h1>
           </div>
 
           {/* NAVBAR */}
@@ -77,15 +65,11 @@ function App() {
             toggleTheme={toggleTheme}
             theme={theme}
           />
-
+          <Toaster position="top-right" />
           {/* ROUTES */}
           <Routes>
-
             {/* ---------------- UPLOAD ---------------- */}
-            <Route
-              path="/upload"
-              element={<UploadResume />}
-            />
+            <Route path="/upload" element={<UploadResume />} />
 
             {/* ---------------- JOB DESCRIPTION ---------------- */}
             <Route
@@ -117,13 +101,9 @@ function App() {
               element={
                 selectedCandidate ? (
                   <div className="space-y-8 p-6">
-                    <CandidateDetail
-                      candidate={selectedCandidate}
-                    />
+                    <CandidateDetail candidate={selectedCandidate} />
 
-                    <Analytics
-                      candidate={selectedCandidate}
-                    />
+                    <Analytics candidate={selectedCandidate} />
                   </div>
                 ) : (
                   <Navigate to="/rank" />
@@ -132,10 +112,7 @@ function App() {
             />
 
             {/* ---------------- DEFAULT ---------------- */}
-            <Route
-              path="*"
-              element={<Navigate to="/upload" />}
-            />
+            <Route path="*" element={<Navigate to="/upload" />} />
           </Routes>
         </div>
       )}
