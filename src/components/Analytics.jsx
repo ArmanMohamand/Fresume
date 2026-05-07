@@ -728,32 +728,21 @@ function Analytics() {
   const candidate = location.state?.candidate;
 
   if (!candidate) {
-    return (
-      <p className="p-6 text-white">
-        Select candidate first
-      </p>
-    );
+    return <p className="p-6 text-white">Select candidate first</p>;
   }
 
   const skills = candidate.skills || [];
 
   // ---------------- PIE CHART ----------------
   const pieData = {
-    labels: skills.length
-      ? skills
-      : ["No Skills Found"],
+    labels: skills.length ? skills : ["No Skills Found"],
 
     datasets: [
       {
-        data: skills.length
-          ? skills.map(() => 1)
-          : [1],
+        data: skills.length ? skills.map(() => 1) : [1],
 
         backgroundColor: skills.length
-          ? skills.map(
-              (_, i) =>
-                `hsl(${(i * 360) / skills.length}, 70%, 55%)`,
-            )
+          ? skills.map((_, i) => `hsl(${(i * 360) / skills.length}, 70%, 55%)`)
           : ["#9ca3af"],
 
         borderWidth: 1,
@@ -782,23 +771,18 @@ function Analytics() {
     <div className="p-6 text-white">
       {/* ---------------- CONTACT CARD ---------------- */}
       <div className="bg-gray-800 rounded-2xl p-6 mb-8 shadow-lg space-y-3">
-        <h3 className="text-2xl font-semibold mb-4">
-          Contact Details
-        </h3>
+        <h3 className="text-2xl font-semibold mb-4">Contact Details</h3>
 
         <p>
-          <strong>Name:</strong>{" "}
-          {candidate.metadata?.name || "N/A"}
+          <strong>Name:</strong> {candidate.metadata?.name || "N/A"}
         </p>
 
         <p>
-          <strong>Email:</strong>{" "}
-          {candidate.email || "N/A"}
+          <strong>Email:</strong> {candidate.email || "N/A"}
         </p>
 
         <p>
-          <strong>Phone:</strong>{" "}
-          {candidate.phone || "N/A"}
+          <strong>Phone:</strong> {candidate.phone || "N/A"}
         </p>
 
         <p>
@@ -832,38 +816,7 @@ function Analytics() {
             "N/A"
           )}
         </p>
-
-        {/* ---------------- PROJECTS ---------------- */}
-        <div>
-          <strong>Projects:</strong>
-
-          {candidate.metadata?.projects?.length > 0 ? (
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              {candidate.metadata.projects.map((project, index) => (
-                <li key={index}>
-                  {project}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-1">N/A</p>
-          )}
-        </div>
-
-        {/* ---------------- SCORE ---------------- */}
-        <p className="text-xl font-bold text-green-400 mt-4">
-          Score: {(candidate.score || 0).toFixed(3)}
-        </p>
-
-        {/* ---------------- SKILLS ---------------- */}
-        <div>
-          <strong>Skills:</strong>{" "}
-          {skills.length > 0
-            ? skills.join(", ")
-            : "None"}
-        </div>
       </div>
-
       {/* ---------------- PIE CHART ---------------- */}
       <div className="bg-gray-800 rounded-2xl p-6 mb-8 shadow-lg">
         <h3 className="text-xl font-semibold mb-4 text-center">
