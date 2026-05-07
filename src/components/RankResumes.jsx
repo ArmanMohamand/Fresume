@@ -458,8 +458,8 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
             >
               View Resume
             </a> */}
-            
-            {ranked.map((candidate) => (
+
+            {results.map((candidate) => (
               <div key={candidate.resume_id}>
                 <p>{candidate.filename}</p>
 
