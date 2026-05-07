@@ -10,7 +10,9 @@ function UploadResume() {
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState("");
-
+  const [linkedin, setLinkedin] = useState("");
+  const [github, setGithub] = useState("");
+  const [projectLinks, setProjectLinks] = useState([""]);
   // ---------------- GET USERNAME ----------------
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,6 +48,19 @@ function UploadResume() {
 
   const handleDragOver = (e) => e.preventDefault();
 
+  // ---------------- ADD PROJECT FIELD ----------------
+  const addProjectField = () => {
+    setProjectLinks([...projectLinks, ""]);
+  };
+
+  // ---------------- UPDATE PROJECT FIELD ----------------
+  const updateProjectLink = (index, value) => {
+    const updated = [...projectLinks];
+
+    updated[index] = value;
+
+    setProjectLinks(updated);
+  };
   // ---------------- PDF TEXT EXTRACTION ----------------
   const extractPdfText = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
@@ -135,7 +150,14 @@ function UploadResume() {
         "/upload",
         {
           filename: file.name,
+
           text: text,
+
+          linkedin,
+
+          github,
+
+          project_links: projectLinks.filter((p) => p.trim() !== ""),
         },
         {
           headers: {
@@ -201,10 +223,49 @@ function UploadResume() {
 
       {/* ---------------- FILE NAME ---------------- */}
       {file && (
-        <p className="mt-3 text-sm text-gray-300">
-          Selected File: {file.name}
-        </p>
+        <p className="mt-3 text-sm text-gray-300">Selected File: {file.name}</p>
       )}
+      {/* ---------------- GITHUB ---------------- */}
+      <input
+        type="text"
+        placeholder="GitHub Link"
+        value={github}
+        onChange={(e) => setGithub(e.target.value)}
+        className="mt-4 w-full p-3 rounded bg-gray-700 text-white"
+      />
+
+      {/* ---------------- LINKEDIN ---------------- */}
+      <input
+        type="text"
+        placeholder="LinkedIn Link"
+        value={linkedin}
+        onChange={(e) => setLinkedin(e.target.value)}
+        className="mt-4 w-full p-3 rounded bg-gray-700 text-white"
+      />
+
+      {/* ---------------- PROJECT LINKS ---------------- */}
+      <div className="mt-4">
+        <p className="text-white mb-2 font-semibold">Project Links</p>
+
+        {projectLinks.map((link, index) => (
+          <input
+            key={index}
+            type="text"
+            placeholder={`Project Link ${index + 1}`}
+            value={link}
+            onChange={(e) => updateProjectLink(index, e.target.value)}
+            className="mb-2 w-full p-3 rounded bg-gray-700 text-white"
+          />
+        ))}
+
+        <button
+          type="button"
+          onClick={addProjectField}
+          className="bg-blue-500 px-4 py-2 rounded text-white mt-2"
+        >
+          Add Another Project
+        </button>
+      </div>
 
       {/* ---------------- BUTTON ---------------- */}
       <button
@@ -221,9 +282,7 @@ function UploadResume() {
 
       {/* ---------------- MESSAGE ---------------- */}
       {message && (
-        <p className="mt-4 text-center text-white font-medium">
-          {message}
-        </p>
+        <p className="mt-4 text-center text-white font-medium">{message}</p>
       )}
     </div>
   );
