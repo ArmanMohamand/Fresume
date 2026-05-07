@@ -317,9 +317,8 @@ function CandidateDetail({ candidate }) {
     return <div className="p-6 text-gray-500">Select candidate</div>;
   }
 
-  const m = candidate.metadata || {}; // ✅ FIX (important)
+  const m = candidate.metadata || {};
 
-  // ✅ URL formatter (handles username + partial links)
   const formatUrl = (url, base) => {
     if (!url) return null;
 
@@ -333,9 +332,7 @@ function CandidateDetail({ candidate }) {
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Candidate Profile
-      </h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Candidate Profile</h2>
 
       <div className="space-y-2 text-gray-700 dark:text-gray-300">
         <p>
@@ -349,8 +346,6 @@ function CandidateDetail({ candidate }) {
         <p>
           <strong>Phone:</strong> {candidate.phone || "N/A"}
         </p>
-
-        {/* ✅ GitHub CLICKABLE */}
         <p>
           <strong>GitHub:</strong>{" "}
           {githubUrl ? (
@@ -366,8 +361,6 @@ function CandidateDetail({ candidate }) {
             "N/A"
           )}
         </p>
-
-        {/* ✅ LinkedIn CLICKABLE */}
         <p>
           <strong>LinkedIn:</strong>{" "}
           {linkedinUrl ? (
@@ -383,8 +376,6 @@ function CandidateDetail({ candidate }) {
             "N/A"
           )}
         </p>
-
-        {/* ✅ PROJECTS WITH NUMBERING + CLICKABLE LINKS */}
         <div>
           <strong>Projects:</strong>
           {m.projects?.length > 0 ? (
@@ -392,7 +383,6 @@ function CandidateDetail({ candidate }) {
               {m.projects.map((proj, idx) => (
                 <li key={idx}>
                   {idx + 1}. {proj}
-
                   {m.project_links?.[idx] && (
                     <>
                       {" "}
@@ -417,16 +407,12 @@ function CandidateDetail({ candidate }) {
 
         <p>
           <strong>Score:</strong>{" "}
-          {typeof candidate.score === "number"
-            ? candidate.score
-            : "N/A"}
+          {typeof candidate.score === "number" ? candidate.score : "N/A"}
         </p>
 
         <p>
           <strong>Skills:</strong>{" "}
-          {candidate.skills?.length > 0
-            ? candidate.skills.join(", ")
-            : "None"}
+          {candidate.skills?.length > 0 ? candidate.skills.join(", ") : "None"}
         </p>
       </div>
     </div>
