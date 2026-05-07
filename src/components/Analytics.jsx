@@ -780,11 +780,6 @@ function Analytics() {
 
   return (
     <div className="p-6 text-white">
-      {/* ---------------- HEADER ---------------- */}
-      <h2 className="text-3xl font-bold mb-6">
-        Candidate Analytics
-      </h2>
-
       {/* ---------------- CONTACT CARD ---------------- */}
       <div className="bg-gray-800 rounded-2xl p-6 mb-8 shadow-lg space-y-3">
         <h3 className="text-2xl font-semibold mb-4">

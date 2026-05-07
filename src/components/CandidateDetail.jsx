@@ -336,9 +336,8 @@ function CandidateDetail({ candidate }) {
 
       <div className="space-y-2 text-gray-700 dark:text-gray-300">
         <p>
-          <strong>Resume ID:</strong> {candidate.resume_id}
+          <strong>Resume File:</strong> {candidate.filename || "Resume.pdf"}
         </p>
-
         <p>
           <strong>Email:</strong> {candidate.email || "N/A"}
         </p>

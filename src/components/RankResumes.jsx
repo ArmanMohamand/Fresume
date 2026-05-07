@@ -366,7 +366,9 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
       toast.success("Ranking completed");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Ranking failed");
+      toast.error(
+        err.response?.data?.error || "Ranking failed Please login again ",
+      );
     } finally {
       setLoading(false);
     }
@@ -438,6 +440,10 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
             <h3 className="font-bold text-lg mt-1">
               {r.metadata?.name || "Unknown User"}
             </h3>
+
+            <p className="text-sm text-gray-400 mt-1">
+              {r.filename || "Resume.pdf"}
+            </p>
 
             <p>Score: {r.score ?? 0}</p>
 
