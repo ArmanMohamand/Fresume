@@ -106,85 +106,68 @@ function UploadResume() {
     return textContent;
   };
 
-  // ---------------- UPLOAD ----------------
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a file");
-      return;
-    }
+// ---------------- UPLOAD ----------------
+const handleUpload = async () => {
+  if (!file) {
+    setMessage("Please select a file");
+    return;
+  }
 
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-    if (!token) {
-      setMessage("User not authenticated");
-      return;
-    }
+  if (!token) {
+    setMessage("User not authenticated");
+    return;
+  }
 
-    try {
-      setUploading(true);
-      setMessage("");
+  try {
+    setUploading(true);
+    setMessage("");
 
-      let text = "";
+    const formData = new FormData();
 
-      // PDF
-      if (file.type === "application/pdf") {
-        text = await extractPdfText(file);
-      }
+    formData.append("file", file);
 
-      // TXT
-      else {
-        text = await file.text();
-      }
+    formData.append("linkedin", linkedin);
 
-      console.log("Extracted text length:", text.length);
-      console.log("Extracted text sample:", text.slice(0, 300));
+    formData.append(
+      "project_links",
+      JSON.stringify(
+        projectLinks.filter((p) => p.trim() !== "")
+      )
+    );
 
-      if (!text || text.trim() === "") {
-        setMessage("Could not extract text from resume");
-        setUploading(false);
-        return;
-      }
-
-      // ---------------- API CALL ----------------
-      const uploadRes = await API.post(
-        "/upload",
-        {
-          filename: file.name,
-
-          text: text,
-
-          linkedin,
-
-          // github,
-
-          project_links: projectLinks.filter((p) => p.trim() !== ""),
+    const uploadRes = await API.post(
+      "/upload",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      }
+    );
 
-      console.log("Upload response:", uploadRes.data);
+    console.log(uploadRes.data);
 
-      setMessage("Resume uploaded successfully!");
-      setFile(null);
-    } catch (err) {
-      console.error("Upload Error:", err);
+    setMessage("Resume uploaded successfully!");
 
-      setMessage(
-        err.response?.data?.error ||
-          err.response?.data?.msg ||
-          err.response?.data?.message ||
-          err.message ||
-          "Upload failed",
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
+    setFile(null);
+
+  } catch (err) {
+
+    console.error(err);
+
+    setMessage(
+      err.response?.data?.error ||
+      "Upload failed"
+    );
+
+  } finally {
+
+    setUploading(false);
+  }
+};
 
   return (
     <div className="max-w-xl mx-auto mt-12 bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-2xl">
