@@ -11,7 +11,7 @@ function UploadResume() {
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState("");
   const [linkedin, setLinkedin] = useState("");
-  const [github, setGithub] = useState("");
+  // const [github, setGithub] = useState("");
   const [projectLinks, setProjectLinks] = useState([""]);
   // ---------------- GET USERNAME ----------------
   useEffect(() => {
@@ -155,7 +155,7 @@ function UploadResume() {
 
           linkedin,
 
-          github,
+          // github,
 
           project_links: projectLinks.filter((p) => p.trim() !== ""),
         },
@@ -226,13 +226,13 @@ function UploadResume() {
         <p className="mt-3 text-sm text-gray-300">Selected File: {file.name}</p>
       )}
       {/* ---------------- GITHUB ---------------- */}
-      <input
+      {/* <input
         type="text"
         placeholder="GitHub Link"
         value={github}
         onChange={(e) => setGithub(e.target.value)}
         className="mt-4 w-full p-3 rounded bg-gray-700 text-white"
-      />
+      /> */}
 
       {/* ---------------- LINKEDIN ---------------- */}
       <input
