@@ -461,12 +461,11 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
                 View Resume
               </a>
             </div> */}
-            {results.map((candidate) => (
-              <div key={candidate.resume_id}>
-                <p>{candidate.filename}</p>
-
+            {r.files?.map((file) => (
+              <div key={file}>
+                <p>{file}</p>
                 <a
-                  href={`${import.meta.env.VITE_API_URL}/resume/${candidate.filename}`}
+                  href={`${import.meta.env.VITE_API_URL}/resume/${file}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-block"
