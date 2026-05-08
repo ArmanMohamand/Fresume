@@ -450,6 +450,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
             <p className="mt-2">Skills: {r.skills?.join(", ") || "None"}</p>
 
             <p>Email: {r.email || "N/A"}</p>
+
             <div className="mt-3">
               <a
                 href={`${import.meta.env.VITE_API_URL}/resume/${r.filename}`}
