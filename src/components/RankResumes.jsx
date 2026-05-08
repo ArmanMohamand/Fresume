@@ -459,11 +459,12 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
               View Resume
             </a> */}
 
-            {r.files?.map((file) => (
-              <div key={file}>
-                <p>{file}</p>
+            {results.map((candidate) => (
+              <div key={candidate.resume_id}>
+                <p>{candidate.filename}</p>
+
                 <a
-                  href={`${import.meta.env.VITE_API_URL}/resume/${file}`}
+                  href={`${import.meta.env.VITE_API_URL}/resume/${candidate.filename}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-block"
@@ -472,7 +473,6 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
                 </a>
               </div>
             ))}
-
             <p className="text-green-400 text-sm mt-2">
               Click to view Analytics →
             </p>
