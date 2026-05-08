@@ -32,9 +32,17 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
       toast.success("Ranking completed");
     } catch (err) {
-      toast.error(
-        err.response?.data?.error || "Ranking failed Please login again ",
-      );
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+
+        toast.error("Session expired. Please login again.");
+
+        navigate("/login");
+
+        return;
+      }
+
+      toast.error(err.response?.data?.error || "Ranking failed");
     } finally {
       setLoading(false);
     }
