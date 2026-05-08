@@ -25,8 +25,6 @@ function App() {
 
   const [jobDesc, setJobDesc] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
-
-  // ---------------- THEME ----------------
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -36,14 +34,10 @@ function App() {
 
     localStorage.setItem("theme", theme);
   }, [theme]);
-
-  // ---------------- LOGOUT ----------------
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
   };
-
-  // ---------------- TOGGLE THEME ----------------
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
@@ -54,24 +48,20 @@ function App() {
         <Login setToken={setToken} />
       ) : (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white transition-colors duration-300">
-          {/* HEADER */}
           <div className="flex justify-between items-center px-6 py-4">
             <h1 className="text-2xl font-bold">Resume Screening Dashboard</h1>
           </div>
 
-          {/* NAVBAR */}
           <Navbar
             handleLogout={handleLogout}
             toggleTheme={toggleTheme}
             theme={theme}
           />
           <Toaster position="top-right" />
-          {/* ROUTES */}
+
           <Routes>
-            {/* ---------------- UPLOAD ---------------- */}
             <Route path="/upload" element={<UploadResume />} />
 
-            {/* ---------------- JOB DESCRIPTION ---------------- */}
             <Route
               path="/jobdesc"
               element={
@@ -83,7 +73,6 @@ function App() {
               }
             />
 
-            {/* ---------------- RANK ---------------- */}
             <Route
               path="/rank"
               element={
@@ -95,7 +84,6 @@ function App() {
               }
             />
 
-            {/* ---------------- ANALYTICS ---------------- */}
             <Route
               path="/analytics"
               element={
@@ -111,7 +99,6 @@ function App() {
               }
             />
 
-            {/* ---------------- DEFAULT ---------------- */}
             <Route path="*" element={<Navigate to="/upload" />} />
           </Routes>
         </div>
