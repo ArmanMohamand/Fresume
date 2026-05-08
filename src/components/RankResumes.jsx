@@ -450,7 +450,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
             <p className="mt-2">Skills: {r.skills?.join(", ") || "None"}</p>
 
             <p>Email: {r.email || "N/A"}</p>
-            {/* <div className="mt-3">
+            <div className="mt-3">
               <a
                 href={`${import.meta.env.VITE_API_URL}/resume/${r.filename}`}
                 target="_blank"
@@ -460,20 +460,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
               >
                 View Resume
               </a>
-            </div> */}
-            {r.files?.map((file) => (
-              <div key={file}>
-                <p>{file}</p>
-                <a
-                  href={`${import.meta.env.VITE_API_URL}/resume/${file}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-block"
-                >
-                  View Resume
-                </a>
-              </div>
-            ))}
+            </div>
             <p className="text-green-400 text-sm mt-2">
               Click to view Analytics →
             </p>
