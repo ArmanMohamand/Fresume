@@ -123,7 +123,8 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
             <div className="mt-3">
               <a
-                href={`${import.meta.env.VITE_API_URL}/resume/${r.filename}`}
+                // href={`${import.meta.env.VITE_API_URL}/resume/${r.filename}`}
+                href={r.file_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
