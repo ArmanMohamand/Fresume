@@ -13,6 +13,7 @@ import JobDescription from "./components/JobDescription";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import CandidateDetail from "./components/CandidateDetail";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import "./index.css";
 
@@ -88,11 +89,13 @@ function App() {
               path="/analytics"
               element={
                 selectedCandidate ? (
-                  <div className="space-y-8 p-6">
-                    <CandidateDetail candidate={selectedCandidate} />
+                  <ErrorBoundary>
+                    <div className="space-y-8 p-6">
+                      <CandidateDetail candidate={selectedCandidate} />
 
-                    <Analytics candidate={selectedCandidate} />
-                  </div>
+                      <Analytics candidate={selectedCandidate} />
+                    </div>
+                  </ErrorBoundary>
                 ) : (
                   <Navigate to="/rank" />
                 )
