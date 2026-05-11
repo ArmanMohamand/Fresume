@@ -210,7 +210,7 @@ function JobDescription({ setJobDesc, setRequiredSkills }) {
                 </p>
               </div> */}
               <div className="w-full">
-                <div className="p-3 sm:p-4 border rounded bg-gray-800">
+                <div className="p-3 sm:p-4 border rounded bg-gray-200">
                   <p className="w-full text-sm sm:text-base text-left">
                     {entry.desc}
                   </p>
