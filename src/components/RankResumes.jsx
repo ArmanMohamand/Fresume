@@ -50,6 +50,10 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
 
   const handleDelete = async (e, resumeId) => {
     e.stopPropagation();
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this resume?",
+    );
+    if (!confirmed) return;
     const token = localStorage.getItem("token");
 
     try {
