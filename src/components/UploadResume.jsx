@@ -92,13 +92,22 @@ function UploadResume() {
 
   return (
     <div className="max-w-xl mx-auto mt-8 sm:mt-12 bg-white dark:bg-gray-900 p-4 sm:p-8 md:p-10 rounded-2xl shadow-2xl">
-      <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-white">
+      {/* <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-green-500">
         Welcome, {username}
       </h1>
 
       <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-6 sm:mb-8 text-center text-white">
         Upload Resume
-      </h2>
+      </h2> */}
+      <h1 className="text-base sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-green-600 dark:text-green-400">
+        Welcome, {username}
+      </h1>
+
+      {message && (
+        <p className="mt-4 text-center text-gray-800 dark:text-white font-medium text-base sm:text-lg">
+          {message}
+        </p>
+      )}
 
       <div
         onDrop={handleDrop}
