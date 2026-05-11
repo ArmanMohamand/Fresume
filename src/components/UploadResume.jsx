@@ -102,13 +102,10 @@ function UploadResume() {
       <h1 className="text-base sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-green-600 dark:text-green-400">
         Welcome, {username}
       </h1>
-
-      {message && (
-        <p className="mt-4 text-center text-gray-800 dark:text-white font-medium text-base sm:text-lg">
-          {message}
-        </p>
-      )}
-
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-6 sm:mb-8 text-center text-gray-600 dark:text-gray-400">
+        Upload Resume
+      </h2>
+      
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -122,7 +119,6 @@ function UploadResume() {
           or click below to select a file
         </p>
       </div>
-
       <input
         type="file"
         accept=".pdf,.txt"
@@ -134,7 +130,6 @@ function UploadResume() {
           Selected File: {file.name}
         </p>
       )}
-
       <input
         type="text"
         placeholder="LinkedIn Link"
@@ -142,7 +137,6 @@ function UploadResume() {
         onChange={(e) => setLinkedin(e.target.value)}
         className="mt-4 w-full p-2 sm:p-3 rounded bg-gray-700 text-white"
       />
-
       <div className="mt-4">
         <p className="text-white mb-2 font-semibold">Project Links</p>
         {projectLinks.map((link, index) => (
@@ -163,7 +157,6 @@ function UploadResume() {
           Add Another Project
         </button>
       </div>
-
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
@@ -175,7 +168,6 @@ function UploadResume() {
       >
         {uploading ? "Uploading..." : "Upload Resume"}
       </button>
-
       {message && (
         <p className="mt-4 text-center text-white font-medium text-sm sm:text-base">
           {message}
