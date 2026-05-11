@@ -214,6 +214,10 @@ function JobDescription({ setJobDesc, setRequiredSkills }) {
                   <p className="w-full text-sm sm:text-base text-left">
                     {entry.desc}
                   </p>
+                  <p className="text-xs sm:text-sm mt-2">
+                    <strong>Skills:</strong>{" "}
+                    {formatSkills(entry.skills) || "None"}
+                  </p>
                 </div>
               </div>
 
