@@ -66,7 +66,7 @@ function RankResumes({ jobDesc, requiredSkills, setSelectedCandidate }) {
   return (
     <div className="p-4 sm:p-6 text-white">
       {/* INFO */}
-      <div className="mb-6 p-4 rounded-xl bg-blue-500/20 border border-blue-400">
+      <div className="mb-6 p-4 rounded-xl  bg-gray-800 border border-blue-400">
         <h2 className="text-lg sm:text-xl font-bold mb-2">
           How to Use This Page
         </h2>
